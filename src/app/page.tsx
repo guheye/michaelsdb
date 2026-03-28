@@ -209,11 +209,9 @@ export default function HomePage() {
   const related = articles.slice(4, 8);
   // Corner sidebar opinions
   const opinions = articles.filter(
-    (a) => a.category === "AI"
+    (a) => a.category === "Artificial Intelligence"
   );
-  const cornerArticles = opinions.length >= 4
-    ? opinions.slice(0, 5)
-    : [...opinions, ...articles.filter((a) => !opinions.includes(a))].slice(0, 5);
+  const cornerArticles = opinions.slice(0, 5);
 
   // Remaining for below-fold content
   const usedIds = new Set([lead.id, ...leftColumn.map((a) => a.id), ...related.map((a) => a.id)]);
@@ -229,7 +227,6 @@ export default function HomePage() {
 
   return (
     <>
-      <Navigation trending={trending} />
       <div className="max-w-[1200px] mx-auto px-4">
         <HomeLayout
           lead={lead}

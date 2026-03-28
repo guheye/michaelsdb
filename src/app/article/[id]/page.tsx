@@ -74,6 +74,16 @@ export default async function ArticlePage({
           <span>{formatDate(article.publishedAt)}</span>
         </div>
 
+        {article.imageUrl && (
+          <div className="mb-6">
+            <img
+              src={article.imageUrl}
+              alt={title}
+              className="w-full h-auto rounded-sm"
+            />
+          </div>
+        )}
+
         <div className="border-t border-b border-gray-200 py-4 mb-6">
           {article.excerpt && (
             <p className="text-gray-700 leading-relaxed mb-4">
