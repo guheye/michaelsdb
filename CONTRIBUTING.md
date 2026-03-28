@@ -33,10 +33,6 @@ Thanks for your interest in this project.
    npm run lint
    ```
 
-## Editorial scope
-
-Product direction and editorial principles are documented in [CHARTER.md](CHARTER.md). Code contributions should respect that document; substantive editorial changes are best discussed in an issue first.
-
 ## Pull requests
 
 - Prefer focused PRs with a clear description of what changed and why.

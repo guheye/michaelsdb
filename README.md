@@ -1,6 +1,6 @@
 # Michael's Daily Brief (michaelsdb)
 
-An intellectual conservative news aggregator built with Next.js: RSS ingestion, SQLite storage, optional AI-rewritten headlines, and a reader-focused UI. Editorial identity and principles live in [CHARTER.md](CHARTER.md).
+An intellectual conservative news aggregator built with Next.js: RSS ingestion, SQLite storage, optional AI-rewritten headlines, and a reader-focused UI.
 
 ## Stack
 
