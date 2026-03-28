@@ -204,9 +204,9 @@ export default function HomePage() {
   // Lead featured story (center)
   const lead = articles[0];
   // Left column cards
-  const leftColumn = articles.slice(1, 3);
-  // Related bullet points under lead
-  const related = articles.slice(3, 7);
+  const leftColumn = articles.slice(1, 4);
+  // Related under lead (NR-style two-row block)
+  const related = articles.slice(4, 8);
   // Corner sidebar opinions
   const opinions = articles.filter(
     (a) => a.category === "Opinion" || a.category === "Books & Ideas" || a.category === "Culture"
