@@ -4,7 +4,7 @@ export const BRAND_SLUG = "michaelsdailybrief";
 /** Short technical name (npm package, SQLite base filename, HTTP User-Agent). */
 export const BRAND_SHORT = "michaelsdb";
 
-/** User-facing publication name (UI copy, metadata, prompts, charter). */
+/** User-facing publication name (UI copy, metadata, prompts). */
 export const BRAND_DISPLAY = "Michael's Daily Brief";
 
 /** Wordmark: serif half + sans half (reads as BRAND_DISPLAY). */

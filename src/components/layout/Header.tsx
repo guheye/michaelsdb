@@ -55,9 +55,6 @@ export function Header() {
 
         {/* Right: nav links + aggregate + search */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/about" className="text-white font-sans text-xs font-bold uppercase tracking-wider hover:text-gray-300 transition-colors">
-            About
-          </Link>
           <Link href="/section/opinion" className="text-white font-sans text-xs font-bold uppercase tracking-wider hover:text-gray-300 transition-colors">
             Opinion
           </Link>

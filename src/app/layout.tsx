@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: BRAND_DISPLAY,
     description:
-      "Intellectual conservative news & analysis. Headlines curated by AI, guided by editorial principle.",
+      "Intellectual conservative news & analysis. Headlines curated by AI.",
     type: "website",
   },
 };

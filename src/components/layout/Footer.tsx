@@ -71,20 +71,11 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* About */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider mb-3 text-gray-300">
-              About
+              Contact
             </h4>
             <ul className="space-y-1.5">
-              <li>
-                <Link
-                  href="/about"
-                  className="text-gray-400 text-xs hover:text-white transition-colors"
-                >
-                  Editorial Charter
-                </Link>
-              </li>
               <li>
                 <Link
                   href="/contact"
@@ -99,8 +90,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 mt-8 pt-6 text-center text-gray-500 text-[0.625rem]">
           &copy; {new Date().getFullYear()} {BRAND_DISPLAY}. All rights reserved.
-          Headlines curated and reframed by AI in accordance with our editorial
-          charter.
+          Headlines curated and reframed by AI.
         </div>
       </div>
     </footer>
