@@ -2,6 +2,9 @@
 """
 Scan all 26^3 three-letter .ai domains (aaa.ai … zzz.ai) via whois.nic.ai.
 Uses asyncio with a semaphore to cap concurrent WHOIS queries.
+
+WHOIS uses TCP port 43; some environments (e.g. sandboxed CI) block or time out —
+run locally with normal network access. If you see many unknown/timeout, lower -j.
 """
 from __future__ import annotations
 
@@ -109,8 +112,8 @@ def main() -> None:
         "--concurrency",
         "-j",
         type=int,
-        default=64,
-        help="max concurrent whois queries (default: 64)",
+        default=28,
+        help="max concurrent whois queries (default: 28; high values may get rate-limited)",
     )
     p.add_argument(
         "--timeout",
