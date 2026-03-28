@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Michael's Daily Brief (michaelsdb)
 
-## Getting Started
+An intellectual conservative news aggregator built with Next.js: RSS ingestion, SQLite storage, optional AI-rewritten headlines, and a reader-focused UI. Editorial identity and principles live in [CHARTER.md](CHARTER.md).
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework:** Next.js 16 (App Router), React 19
+- **Data:** SQLite via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) and [Drizzle ORM](https://orm.drizzle.team/)
+- **Feeds:** RSS parsing and aggregation pipelines under `src/lib/feeds/`
+- **AI:** Anthropic API for headline rewriting (`src/lib/ai/`)
+- **Styling:** Tailwind CSS v4
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Prerequisites
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Node.js (LTS recommended) and npm
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup
 
-## Learn More
+1. Clone the repository and install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Environment variables:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   cp .env.example .env.local
+   ```
 
-## Deploy on Vercel
+   - **`ANTHROPIC_API_KEY`** — Required for AI headline rewriting.
+   - **`UNSPLASH_ACCESS_KEY`** — Optional; helps backfill images when feeds do not provide them.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Run the development server:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000).
+
+The app creates and uses a local SQLite database file in the project root (see `src/lib/db/index.ts`). Database files are gitignored.
+
+## Scripts
+
+| Command        | Description        |
+| -------------- | ------------------ |
+| `npm run dev`  | Development server |
+| `npm run build`| Production build   |
+| `npm run start`| Production server  |
+| `npm run lint` | ESLint             |
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). This project uses the [Contributor Covenant](CODE_OF_CONDUCT.md).
+
+## Security
+
+See [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE)
