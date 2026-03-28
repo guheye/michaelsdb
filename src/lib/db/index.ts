@@ -4,15 +4,43 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
 import path from "path";
 
-/** Absolute path to the SQLite file. On Render, set to a path on a persistent disk (e.g. /var/data/michaelsdb.db). */
-const DB_PATH = process.env.SQLITE_PATH
-  ? path.resolve(process.env.SQLITE_PATH)
-  : path.join(process.cwd(), "michaelsdb.db");
-
-const dbDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
+/**
+ * During `next build`, Next loads server modules in workers to collect page data.
+ * We must not touch disk paths like Render's SQLITE_PATH=/var/data/... (no disk at build time).
+ * Use an in-memory DB for the build only; runtime uses the real file.
+ */
+function isProductionBuild(): boolean {
+  return (
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    process.env.npm_lifecycle_event === "build"
+  );
 }
+
+function resolveDbFilePath(): string {
+  if (isProductionBuild()) {
+    return ":memory:";
+  }
+
+  const raw = process.env.SQLITE_PATH?.trim();
+  if (raw) {
+    const resolved = path.resolve(raw);
+    const dir = path.dirname(resolved);
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      return resolved;
+    } catch {
+      console.warn(
+        `[db] SQLITE_PATH "${raw}" is not usable (mkdir failed); falling back to cwd`
+      );
+    }
+  }
+
+  return path.join(process.cwd(), "michaelsdb.db");
+}
+
+const DB_PATH = resolveDbFilePath();
 
 const sqlite = new Database(DB_PATH);
 sqlite.pragma("journal_mode = WAL");
