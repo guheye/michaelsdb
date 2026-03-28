@@ -58,5 +58,5 @@ next-env.d.ts
 .vscode/
 *.sublime-*
 
-# Claude Code (machine-local)
-.claude/settings.local.json
+# Claude Code
+.claude/
