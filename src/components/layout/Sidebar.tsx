@@ -14,14 +14,14 @@ export function Sidebar({ opinions }: { opinions: Article[] }) {
           </Link>
         </div>
 
-        <div className="space-y-4">
+        <div className="divide-y divide-gray-200">
           {opinions.slice(0, 5).map((article) => {
             const title = article.rewrittenTitle || article.originalTitle;
             return (
               <Link
                 key={article.id}
                 href={`/article/${article.id}`}
-                className="article-card block text-center group"
+                className="article-card block text-center group py-4 first:pt-0"
               >
                 <h3 className="headline-sidebar mb-1">
                   {title}
@@ -31,7 +31,6 @@ export function Sidebar({ opinions }: { opinions: Article[] }) {
                   <span className="mx-1.5">|</span>
                   <span>{timeAgo(article.publishedAt)}</span>
                 </div>
-                <div className="border-b border-gray-200 mt-4" />
               </Link>
             );
           })}
