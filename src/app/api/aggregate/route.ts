@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/feeds/fetcher";
 import { rewriteHeadlines } from "@/lib/ai/rewriter";
+import { clusterArticles } from "@/lib/ai/clusterer";
+import { recomputeAllStoryMetrics } from "@/lib/ai/story-metrics";
 import { fetchMissingImages } from "@/lib/feeds/images";
 import { acquireAggregateSlot } from "@/lib/server/aggregate-rate-limit";
 
@@ -42,7 +44,13 @@ export async function POST(request: NextRequest) {
       batch++;
     }
 
-    // Step 3: Fetch OG images for articles missing images
+    // Step 3: Cluster articles into stories
+    const clusterResult = await clusterArticles();
+
+    // Step 4: Recompute bias metrics for all stories
+    const metricsResult = recomputeAllStoryMetrics();
+
+    // Step 5: Fetch OG images for articles missing images
     const imageResult = await fetchMissingImages(30, category);
 
     return NextResponse.json({
@@ -55,6 +63,15 @@ export async function POST(request: NextRequest) {
         rewritten: totalRewritten,
         batches: batch,
         errors: aiErrors,
+      },
+      clustering: {
+        clustersCreated: clusterResult.clustersCreated,
+        articlesAssigned: clusterResult.articlesAssigned,
+        errors: clusterResult.errors,
+      },
+      metrics: {
+        storiesUpdated: metricsResult.updated,
+        errors: metricsResult.errors,
       },
       images: {
         updated: imageResult.updated,
