@@ -13,8 +13,14 @@ function ChangeIndicator({ change, changePercent }: { change: number; changePerc
   );
 }
 
-export function TickerSubheader() {
-  const [data, setData] = useState<SubheaderData>(MOCK_DATA);
+type TickerSubheaderProps = {
+  /** When set, uses this data and skips live API fetch (e.g. dev preview). */
+  data?: SubheaderData;
+};
+
+export function TickerSubheader({ data: controlledData }: TickerSubheaderProps = {}) {
+  const [fetchedData, setFetchedData] = useState<SubheaderData>(MOCK_DATA);
+  const data = controlledData ?? fetchedData;
   const [paused, setPaused] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
@@ -24,8 +30,10 @@ export function TickerSubheader() {
   const SPEED = 40; // pixels per second
   const REFRESH_INTERVAL = 5 * 60 * 1000; // refresh data every 5 min
 
-  // Fetch live data
+  // Fetch live data when not controlled by parent
   useEffect(() => {
+    if (controlledData) return;
+
     let mounted = true;
 
     async function fetchData() {
@@ -33,7 +41,7 @@ export function TickerSubheader() {
         const res = await fetch("/api/ticker-data", { cache: "no-store" });
         if (!res.ok) throw new Error(`${res.status}`);
         const json = await res.json();
-        if (mounted) setData(json);
+        if (mounted) setFetchedData(json);
       } catch (e) {
         console.error("Ticker data fetch failed, using mock:", e);
       }
@@ -45,7 +53,7 @@ export function TickerSubheader() {
       mounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [controlledData]);
 
   const tick = useCallback(
     (timestamp: number) => {
