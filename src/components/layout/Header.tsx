@@ -20,6 +20,10 @@ export function Header() {
     try {
       const res = await fetch("/api/aggregate");
       const data = await res.json();
+      if (res.status === 429 && data.retryAfterSeconds != null) {
+        setLastResult(`Please wait ${data.retryAfterSeconds}s before aggregating again.`);
+        return;
+      }
       if (data.success) {
         const msg = `${data.feeds?.newArticles || 0} new · ${data.ai?.rewritten || 0} rewritten · ${data.images?.updated || 0} images`;
         setLastResult(msg);

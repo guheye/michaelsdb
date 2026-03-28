@@ -2,10 +2,26 @@ import { NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/feeds/fetcher";
 import { rewriteHeadlines } from "@/lib/ai/rewriter";
 import { fetchMissingImages } from "@/lib/feeds/images";
+import { acquireAggregateSlot } from "@/lib/server/aggregate-rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST() {
+  const slot = acquireAggregateSlot();
+  if (!slot.allowed) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Aggregate cooldown active. Try again shortly.",
+        retryAfterSeconds: slot.retryAfterSeconds,
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(slot.retryAfterSeconds) },
+      }
+    );
+  }
+
   try {
     // Step 1: Fetch all RSS feeds
     const feedResult = await fetchAllFeeds();
