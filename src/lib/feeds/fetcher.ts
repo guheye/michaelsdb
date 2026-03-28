@@ -72,15 +72,19 @@ function extractImageUrl(item: Parser.Item): string | null {
   return null;
 }
 
-export async function fetchAllFeeds(): Promise<{
+export async function fetchAllFeeds(category?: string): Promise<{
   totalNew: number;
   errors: string[];
 }> {
   let totalNew = 0;
   const errors: string[] = [];
 
+  const sources = category
+    ? FEED_SOURCES.filter((s) => s.defaultCategory === category)
+    : FEED_SOURCES;
+
   // Ensure feeds exist in DB
-  for (const source of FEED_SOURCES) {
+  for (const source of sources) {
     const existing = db
       .select()
       .from(schema.feeds)

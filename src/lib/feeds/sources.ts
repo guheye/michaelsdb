@@ -151,13 +151,13 @@ export const FEED_SOURCES: FeedSource[] = [
     name: "MIT Technology Review AI",
     url: "https://www.technologyreview.com/feed/",
     tier: 2,
-    defaultCategory: "AI",
+    defaultCategory: "Artificial Intelligence",
   },
   {
     name: "The Verge AI",
     url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
     tier: 2,
-    defaultCategory: "AI",
+    defaultCategory: "Artificial Intelligence",
   },
 
   // Tier 2 — Markets

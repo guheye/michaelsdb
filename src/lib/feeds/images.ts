@@ -13,19 +13,21 @@ const UNSPLASH_GAP_MS = Number(process.env.UNSPLASH_GAP_MS) || 1200;
  * Attempts to fetch Open Graph images for articles that have no imageUrl.
  * Falls back to LLM-assisted Unsplash search if OG scraping fails.
  */
-export async function fetchMissingImages(limit = 20): Promise<{
+export async function fetchMissingImages(limit = 20, category?: string): Promise<{
   updated: number;
   errors: number;
 }> {
+  const conditions = [
+    eq(schema.articles.status, "ready"),
+    isNull(schema.articles.imageUrl),
+  ];
+  if (category) {
+    conditions.push(eq(schema.articles.category, category) as ReturnType<typeof eq>);
+  }
   const articles = db
     .select()
     .from(schema.articles)
-    .where(
-      and(
-        eq(schema.articles.status, "ready"),
-        isNull(schema.articles.imageUrl)
-      )
-    )
+    .where(and(...conditions))
     .limit(limit)
     .all();
 

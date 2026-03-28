@@ -37,7 +37,7 @@ You will receive a JSON array of articles. For each, return a JSON array of obje
 - "id": the article id (number)
 - "rewritten_title": your rewritten headline (string)
 - "summary": your editorial summary (string, 2-4 substantive sentences)
-- "category": one of: "News", "Political Economy", "Policy", "Opinion", "Culture", "Foreign Affairs", "Science & Tech", "Books & Ideas", "Tech", "AI", "Art & Luxury", "Firearms", "Markets", "Sports"
+- "category": one of: "News", "Political Economy", "Policy", "Opinion", "Culture", "Foreign Affairs", "Science & Tech", "Books & Ideas", "Tech", "Artificial Intelligence", "Art & Luxury", "Firearms", "Markets", "Sports"
 - "priority": importance score 1-10 (10 = most important to an intellectually engaged conservative reader)
 
 Priority scoring guidance:

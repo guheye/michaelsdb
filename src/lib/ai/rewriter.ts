@@ -1,7 +1,7 @@
 import { getAnthropicClient } from "./client";
 import { EDITORIAL_SYSTEM_PROMPT } from "./prompts";
 import { db, schema } from "@/lib/db";
-import { eq, inArray } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 
 interface RewriteResult {
   id: number;
@@ -11,17 +11,21 @@ interface RewriteResult {
   priority: number;
 }
 
-export async function rewriteHeadlines(batchSize: number = 15): Promise<{
+export async function rewriteHeadlines(batchSize: number = 15, category?: string): Promise<{
   processed: number;
   errors: string[];
 }> {
   const errors: string[] = [];
 
   // Get unprocessed articles
+  const conditions = [eq(schema.articles.status, "new" as const)];
+  if (category) {
+    conditions.push(eq(schema.articles.category, category));
+  }
   const newArticles = db
     .select()
     .from(schema.articles)
-    .where(eq(schema.articles.status, "new"))
+    .where(and(...conditions))
     .limit(batchSize)
     .all();
 
