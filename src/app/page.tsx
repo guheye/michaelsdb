@@ -209,7 +209,7 @@ export default function HomePage() {
   const related = articles.slice(4, 8);
   // Corner sidebar opinions
   const opinions = articles.filter(
-    (a) => a.category === "Opinion" || a.category === "Books & Ideas" || a.category === "Culture"
+    (a) => a.category === "AI"
   );
   const cornerArticles = opinions.length >= 4
     ? opinions.slice(0, 5)
