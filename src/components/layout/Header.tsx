@@ -58,7 +58,7 @@ export function Header() {
           {/* Logo + wordmark */}
           <Link href="/" className="flex items-baseline gap-2 sm:gap-2.5 leading-none">
             <span
-              className={`${wordmarkMichaelsdailybrief.className} text-white text-[1.5rem] sm:text-[2rem] font-extrabold tracking-tight`}
+              className={`${wordmarkMichaelsdailybrief.className} text-white text-[1.75rem] sm:text-[2rem] font-extrabold tracking-tight`}
             >
               {BRAND_WORDMARK_SERIF}
             </span>
@@ -100,11 +100,11 @@ export function Header() {
             </button>
           </div>
 
-          {/* Mobile aggregate button (compact) */}
+          {/* Mobile aggregate button (refresh icon) */}
           <button
             onClick={handleAggregate}
             disabled={aggregating}
-            className="md:hidden flex items-center justify-center min-w-[3.25rem] px-1.5 h-8 text-[10px] font-sans font-bold uppercase tracking-wider text-white"
+            className="md:hidden flex items-center justify-center w-8 h-8"
             aria-label="Aggregate"
           >
             {aggregating ? (
@@ -113,7 +113,10 @@ export function Header() {
                 <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" />
               </svg>
             ) : (
-              "Agg"
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M1 4v6h6M23 20v-6h-6" />
+                <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
+              </svg>
             )}
           </button>
         </div>
