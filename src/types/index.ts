@@ -47,6 +47,12 @@ export const CATEGORIES = [
   "Foreign Affairs",
   "Science & Tech",
   "Books & Ideas",
+  "Tech",
+  "AI",
+  "Art & Luxury",
+  "Firearms",
+  "Markets",
+  "Sports",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
@@ -60,6 +66,12 @@ export const CATEGORY_SLUGS: Record<Category, string> = {
   "Foreign Affairs": "foreign-affairs",
   "Science & Tech": "science-tech",
   "Books & Ideas": "books-ideas",
+  Tech: "tech",
+  AI: "ai",
+  "Art & Luxury": "art-luxury",
+  Firearms: "firearms",
+  Markets: "markets",
+  Sports: "sports",
 };
 
 export const SLUG_TO_CATEGORY: Record<string, Category> = Object.fromEntries(
