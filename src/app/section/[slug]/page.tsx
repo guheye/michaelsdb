@@ -2,6 +2,7 @@ import { db, schema } from "@/lib/db";
 import { eq, and, desc } from "drizzle-orm";
 import { ArticleCard } from "@/components/articles/ArticleCard";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { SectionAggregateButton } from "@/components/sections/SectionAggregateButton";
 import { SLUG_TO_CATEGORY, CATEGORIES } from "@/types";
 import { notFound } from "next/navigation";
 import type { Article } from "@/types";
@@ -56,7 +57,10 @@ export default async function SectionPage({
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-6">
-      <div className="section-header text-lg mb-6">{category}</div>
+      <div className="flex items-center justify-between mb-6">
+        <div className="section-header text-lg">{category}</div>
+        <SectionAggregateButton category={category} />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8">
