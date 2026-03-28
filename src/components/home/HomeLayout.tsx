@@ -2,10 +2,13 @@ import Link from "next/link";
 import { timeAgo } from "@/lib/utils/dates";
 import { getPlaceholderImage } from "@/lib/feeds/images";
 import { Sidebar } from "@/components/layout/Sidebar";
-import type { Article } from "@/types";
+import { SourceCountBadge } from "@/components/ui/SourceCountBadge";
+import { BiasVerdictBadge } from "@/components/ui/BiasVerdictBadge";
+import { BlindspotSection } from "@/components/home/BlindspotSection";
+import type { Article, Story } from "@/types";
 
 /* ─── Mobile-optimized compact card: thumbnail on right ─── */
-function MobileCard({ article }: { article: Article }) {
+function MobileCard({ article, story }: { article: Article; story?: Story }) {
   const title = article.rewrittenTitle || article.originalTitle;
   const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
   return (
@@ -20,6 +23,8 @@ function MobileCard({ article }: { article: Article }) {
           <span>{article.author || article.sourceName}</span>
           <span className="mx-1">&middot;</span>
           <span>{timeAgo(article.publishedAt)}</span>
+          <SourceCountBadge story={story} />
+          <BiasVerdictBadge story={story} />
         </div>
       </div>
       {imgSrc && (
@@ -32,7 +37,7 @@ function MobileCard({ article }: { article: Article }) {
 }
 
 /* ─── Desktop left-column card ─── */
-function LeftCard({ article, usePlaceholder = true }: { article: Article; usePlaceholder?: boolean }) {
+function LeftCard({ article, usePlaceholder = true, story }: { article: Article; usePlaceholder?: boolean; story?: Story }) {
   const title = article.rewrittenTitle || article.originalTitle;
   const imgSrc = article.imageUrl || (usePlaceholder ? getPlaceholderImage(article.id, article.category) : null);
   return (
@@ -57,6 +62,10 @@ function LeftCard({ article, usePlaceholder = true }: { article: Article; usePla
       <div className="byline">
         By <span className="byline-author">{article.author || "Staff"}</span>
       </div>
+      <div className="metadata mt-1">
+        <SourceCountBadge story={story} />
+        <BiasVerdictBadge story={story} />
+      </div>
       {article.excerpt && (
         <p className="text-gray-600 text-sm leading-relaxed mt-1 line-clamp-2">
           {article.excerpt}
@@ -67,7 +76,7 @@ function LeftCard({ article, usePlaceholder = true }: { article: Article; usePla
 }
 
 /* ─── Desktop article row ─── */
-function ArticleRow({ article }: { article: Article }) {
+function ArticleRow({ article, story }: { article: Article; story?: Story }) {
   const title = article.rewrittenTitle || article.originalTitle;
   const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
   return (
@@ -89,6 +98,10 @@ function ArticleRow({ article }: { article: Article }) {
         </h3>
         <div className="byline mb-1">
           By <span className="byline-author">{article.author || "Staff"}</span>
+        </div>
+        <div className="metadata mb-1">
+          <SourceCountBadge story={story} />
+          <BiasVerdictBadge story={story} />
         </div>
         {article.excerpt && (
           <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
@@ -138,7 +151,7 @@ function RelatedImageCard({ article }: { article: Article }) {
   );
 }
 
-function CompactItem({ article, index }: { article: Article; index?: number }) {
+function CompactItem({ article, index, story }: { article: Article; index?: number; story?: Story }) {
   const title = article.rewrittenTitle || article.originalTitle;
   return (
     <Link
@@ -159,6 +172,8 @@ function CompactItem({ article, index }: { article: Article; index?: number }) {
           <span>{article.sourceName}</span>
           <span className="mx-1">&middot;</span>
           <span>{timeAgo(article.publishedAt)}</span>
+          <SourceCountBadge story={story} />
+          <BiasVerdictBadge story={story} />
         </div>
       </div>
     </Link>
@@ -173,6 +188,8 @@ interface HomeLayoutProps {
   remaining: Article[];
   latest: Article[];
   trending: Article[];
+  storyMap?: Map<number, Story>;
+  blindspotStories?: { left: Story[]; right: Story[] };
 }
 
 export function HomeLayout({
@@ -183,6 +200,8 @@ export function HomeLayout({
   remaining,
   latest,
   trending,
+  storyMap = new Map(),
+  blindspotStories,
 }: HomeLayoutProps) {
   const leadTitle = lead.rewrittenTitle || lead.originalTitle;
   const leadImg = lead.imageUrl || null;
@@ -216,10 +235,10 @@ export function HomeLayout({
         <div className="border-t border-gray-200 mt-4">
           <div className="section-header">Top Stories</div>
           {leftColumn.map((article) => (
-            <MobileCard key={article.id} article={article} />
+            <MobileCard key={article.id} article={article} story={storyMap.get(article.id)} />
           ))}
           {related.slice(0, 2).map((article) => (
-            <MobileCard key={article.id} article={article} />
+            <MobileCard key={article.id} article={article} story={storyMap.get(article.id)} />
           ))}
         </div>
 
@@ -243,15 +262,22 @@ export function HomeLayout({
         <div className="mt-6">
           <div className="section-header">Most Popular</div>
           {trending.map((article, i) => (
-            <CompactItem key={article.id} article={article} index={i} />
+            <CompactItem key={article.id} article={article} index={i} story={storyMap.get(article.id)} />
           ))}
         </div>
+
+        {/* Blindspot Section */}
+        {blindspotStories && (blindspotStories.left.length > 0 || blindspotStories.right.length > 0) && (
+          <div className="border-t border-gray-200 mt-6 pt-4">
+            <BlindspotSection stories={blindspotStories} />
+          </div>
+        )}
 
         {/* Latest Stories */}
         <div className="border-t border-gray-200 mt-6 pt-4">
           <div className="section-header">Latest Stories</div>
           {remaining.slice(0, 8).map((article) => (
-            <MobileCard key={article.id} article={article} />
+            <MobileCard key={article.id} article={article} story={storyMap.get(article.id)} />
           ))}
         </div>
       </div>
@@ -266,7 +292,7 @@ export function HomeLayout({
             {/* Left column - small article cards */}
             <div className="col-span-3 pr-4">
               {leftColumn.map((article, i) => (
-                <LeftCard key={article.id} article={article} usePlaceholder={i !== 0} />
+                <LeftCard key={article.id} article={article} usePlaceholder={i !== 0} story={storyMap.get(article.id)} />
               ))}
             </div>
 
@@ -328,11 +354,18 @@ export function HomeLayout({
             </div>
           </div>
 
+          {/* Blindspot Section */}
+          {blindspotStories && (blindspotStories.left.length > 0 || blindspotStories.right.length > 0) && (
+            <div className="border-t border-gray-200 mt-6 pt-4">
+              <BlindspotSection stories={blindspotStories} />
+            </div>
+          )}
+
           {/* Below-fold article rows */}
           <div className="border-t border-gray-200 mt-6 pt-4">
             <div className="section-header">Latest Stories</div>
             {remaining.slice(0, 6).map((article) => (
-              <ArticleRow key={article.id} article={article} />
+              <ArticleRow key={article.id} article={article} story={storyMap.get(article.id)} />
             ))}
           </div>
         </div>
@@ -346,7 +379,7 @@ export function HomeLayout({
             <div className="mt-6">
               <div className="section-header">Most Popular</div>
               {trending.map((article, i) => (
-                <CompactItem key={article.id} article={article} index={i} />
+                <CompactItem key={article.id} article={article} index={i} story={storyMap.get(article.id)} />
               ))}
             </div>
           </div>

@@ -1,15 +1,19 @@
 import Link from "next/link";
 import { CategoryTag } from "@/components/ui/CategoryTag";
+import { SourceCountBadge } from "@/components/ui/SourceCountBadge";
+import { BiasVerdictBadge } from "@/components/ui/BiasVerdictBadge";
 import { timeAgo } from "@/lib/utils/dates";
 import { getPlaceholderImage } from "@/lib/feeds/images";
-import type { Article } from "@/types";
+import type { Article, Story } from "@/types";
 
 export function ArticleCard({
   article,
   showImage = true,
+  story,
 }: {
   article: Article;
   showImage?: boolean;
+  story?: Story;
 }) {
   const title = article.rewrittenTitle || article.originalTitle;
   const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
@@ -50,6 +54,8 @@ export function ArticleCard({
             <span>{article.sourceName}</span>
             <span className="mx-1">&middot;</span>
             <span>{timeAgo(article.publishedAt)}</span>
+            <SourceCountBadge story={story} />
+            <BiasVerdictBadge story={story} />
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 import { db, schema } from "@/lib/db";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and, or, gte, inArray } from "drizzle-orm";
 import { Navigation } from "@/components/layout/Navigation";
 import { HomeLayout } from "@/components/home/HomeLayout";
-import type { Article, Category } from "@/types";
+import type { Article, Category, Story } from "@/types";
 import { CATEGORIES } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,12 @@ function getArticles(): Article[] {
   const articles = db
     .select()
     .from(schema.articles)
-    .where(eq(schema.articles.status, "ready"))
+    .where(
+      and(
+        eq(schema.articles.status, "ready"),
+        eq(schema.articles.isShadow, 0)
+      )
+    )
     .orderBy(desc(schema.articles.publishedAt))
     .limit(200)
     .all() as Article[];
@@ -192,7 +197,60 @@ function getMockArticles(): Article[] {
     status: "ready" as const,
     aiProcessedAt: now.toISOString(),
     analysis: null,
+    storyId: null,
+    isShadow: 0,
   }));
+}
+
+/** Build a map of articleId -> Story for articles that belong to a cluster. */
+function getStoryMap(articles: Article[]): Map<number, Story> {
+  const storyIds = [
+    ...new Set(
+      articles.map((a) => a.storyId).filter((id): id is number => id != null)
+    ),
+  ];
+  if (storyIds.length === 0) return new Map();
+
+  const stories = db
+    .select()
+    .from(schema.stories)
+    .where(inArray(schema.stories.id, storyIds))
+    .all() as Story[];
+
+  const storyById = new Map(stories.map((s) => [s.id, s]));
+  const map = new Map<number, Story>();
+  for (const a of articles) {
+    if (a.storyId != null && storyById.has(a.storyId)) {
+      map.set(a.id, storyById.get(a.storyId)!);
+    }
+  }
+  return map;
+}
+
+/** Get blindspot stories from the last 48 hours. */
+function getBlindspotStories(): { left: Story[]; right: Story[] } {
+  const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+
+  const blindspots = db
+    .select()
+    .from(schema.stories)
+    .where(
+      and(
+        gte(schema.stories.updatedAt, cutoff),
+        or(
+          eq(schema.stories.isBlindspotLeft, 1),
+          eq(schema.stories.isBlindspotRight, 1)
+        )
+      )
+    )
+    .orderBy(desc(schema.stories.articleCount))
+    .limit(10)
+    .all() as Story[];
+
+  return {
+    left: blindspots.filter((s) => s.isBlindspotLeft),
+    right: blindspots.filter((s) => s.isBlindspotRight),
+  };
 }
 
 export default function HomePage() {
@@ -225,6 +283,11 @@ export default function HomePage() {
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
     .slice(0, 8);
 
+  // Story clustering & bias data
+  const storyMap = getStoryMap(articles);
+  const blindspotStories = getBlindspotStories();
+
+
   return (
     <>
       <div className="max-w-[1200px] mx-auto px-4">
@@ -236,6 +299,8 @@ export default function HomePage() {
           remaining={remaining}
           latest={latest}
           trending={trending}
+          storyMap={storyMap}
+          blindspotStories={blindspotStories}
         />
       </div>
     </>
