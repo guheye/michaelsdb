@@ -3,6 +3,10 @@ import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { FEED_SOURCES } from "./sources";
 import { userAgent } from "@/lib/brand";
+import { delay } from "@/lib/utils/delay";
+
+/** Pause between RSS fetches to avoid hammering publishers (ms). */
+const FEED_FETCH_GAP_MS = Number(process.env.FEED_FETCH_GAP_MS) || 750;
 
 const parser = new Parser({
   timeout: 10000,
@@ -102,7 +106,9 @@ export async function fetchAllFeeds(): Promise<{
     .where(eq(schema.feeds.isActive, 1))
     .all();
 
-  for (const feed of activeFeeds) {
+  for (let i = 0; i < activeFeeds.length; i++) {
+    const feed = activeFeeds[i];
+    if (i > 0) await delay(FEED_FETCH_GAP_MS);
     const startedAt = new Date().toISOString();
     try {
       const parsedFeed = await parser.parseURL(feed.url);

@@ -2,6 +2,12 @@ import { db, schema } from "@/lib/db";
 import { eq, and, isNull } from "drizzle-orm";
 import { getAnthropicClient } from "@/lib/ai/client";
 import { userAgent } from "@/lib/brand";
+import { delay } from "@/lib/utils/delay";
+
+/** Pause between OG page fetches (ms). */
+const OG_SCRAPE_GAP_MS = Number(process.env.OG_SCRAPE_GAP_MS) || 400;
+/** Pause between Unsplash API calls (ms); keeps within typical API limits. */
+const UNSPLASH_GAP_MS = Number(process.env.UNSPLASH_GAP_MS) || 1200;
 
 /**
  * Attempts to fetch Open Graph images for articles that have no imageUrl.
@@ -29,7 +35,9 @@ export async function fetchMissingImages(limit = 20): Promise<{
   // First pass: try OG scraping (fast, no API cost)
   const stillMissing: typeof articles = [];
 
-  for (const article of articles) {
+  for (let i = 0; i < articles.length; i++) {
+    const article = articles[i];
+    if (i > 0) await delay(OG_SCRAPE_GAP_MS);
     try {
       const imageUrl = await scrapeOgImage(article.originalUrl);
       if (imageUrl) {
@@ -97,7 +105,9 @@ Return ONLY valid JSON, no explanation.`,
     const suggestions: { index: number; query: string }[] = JSON.parse(jsonMatch[0]);
 
     // Query Unsplash for each suggestion
-    for (const suggestion of suggestions) {
+    for (let j = 0; j < suggestions.length; j++) {
+      const suggestion = suggestions[j];
+      if (j > 0) await delay(UNSPLASH_GAP_MS);
       const article = articles[suggestion.index - 1];
       if (!article) continue;
 
@@ -243,6 +253,12 @@ export function getPlaceholderImage(articleId: number, category?: string | null)
     "Foreign Affairs": "globe,diplomacy,world",
     "Science & Tech": "technology,science,computer",
     "Books & Ideas": "books,library,reading",
+    "Tech": "technology,computers,code",
+    "AI": "artificial-intelligence,robot,neural",
+    "Art & Luxury": "art,luxury,gallery",
+    "Firearms": "firearms,shooting,outdoors",
+    "Markets": "finance,stocks,wallstreet",
+    "Sports": "baseball,sports,stadium",
   };
 
   const term = category && categoryTerms[category]
