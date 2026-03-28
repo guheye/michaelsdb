@@ -7,7 +7,7 @@ export function Sidebar({ opinions }: { opinions: Article[] }) {
   return (
     <aside>
       {/* The Corner-style opinion section */}
-      <div className="border border-gray-200 p-4">
+      <div className="border-2 border-accent p-4">
         <div className="corner-header">
           <Link href="/section/opinion" className="flex items-center justify-center gap-1 transition-colors" style={{ color: "#E01A2B" }}>
             The Corner <span className="text-lg">&#10132;</span>
