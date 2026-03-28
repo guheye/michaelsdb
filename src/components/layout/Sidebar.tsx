@@ -10,7 +10,7 @@ export function Sidebar({ opinions }: { opinions: Article[] }) {
       <div className="border-2 border-accent p-4">
         <div className="corner-header">
           <Link href="/section/ai" className="flex items-center justify-center gap-1 transition-colors" style={{ color: "#E01A2B" }}>
-            The AI Corner <span className="text-lg">&#10132;</span>
+            AI Corner <span className="text-lg">&#10132;</span>
           </Link>
         </div>
 

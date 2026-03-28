@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Header } from "@/components/layout/Header";
+import { TickerSubheader } from "@/components/subheader/TickerSubheader";
 import { Footer } from "@/components/layout/Footer";
 import { BRAND_DISPLAY } from "@/lib/brand";
 import { ICON_BG } from "@/lib/icon-monogram";
@@ -38,7 +39,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased">
       <body className="bg-white text-gray-900">
-        <Header />
+        <div className="sticky top-0 z-50">
+          <Header />
+          <TickerSubheader />
+        </div>
         <main>{children}</main>
         <Footer />
       </body>

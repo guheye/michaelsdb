@@ -6,15 +6,48 @@ import {
   BRAND_WORDMARK_SANS_ON_DARK,
 } from "@/lib/brand";
 import { wordmarkMichaelsdailybrief } from "@/lib/fonts";
-import { CATEGORIES, CATEGORY_SLUGS, type Category } from "@/types";
+import { CATEGORY_SLUGS, type Category } from "@/types";
+
+const FOOTER_SECTIONS: { heading: string; links: { label: string; href: string }[] }[] = [
+  {
+    heading: "News & Politics",
+    links: [
+      { label: "News", href: `/section/${CATEGORY_SLUGS["News"]}` },
+      { label: "Political Economy", href: `/section/${CATEGORY_SLUGS["Political Economy"]}` },
+      { label: "Policy", href: `/section/${CATEGORY_SLUGS["Policy"]}` },
+      { label: "Foreign Affairs", href: `/section/${CATEGORY_SLUGS["Foreign Affairs"]}` },
+      { label: "Opinion", href: `/section/${CATEGORY_SLUGS["Opinion"]}` },
+    ],
+  },
+  {
+    heading: "Ideas & Culture",
+    links: [
+      { label: "Culture", href: `/section/${CATEGORY_SLUGS["Culture"]}` },
+      { label: "Books & Ideas", href: `/section/${CATEGORY_SLUGS["Books & Ideas"]}` },
+      { label: "Science & Tech", href: `/section/${CATEGORY_SLUGS["Science & Tech"]}` },
+      { label: "Art & Luxury", href: `/section/${CATEGORY_SLUGS["Art & Luxury"]}` },
+    ],
+  },
+  {
+    heading: "Markets & More",
+    links: [
+      { label: "Markets", href: `/section/${CATEGORY_SLUGS["Markets"]}` },
+      { label: "Tech", href: `/section/${CATEGORY_SLUGS["Tech"]}` },
+      { label: "Artificial Intelligence", href: `/section/${CATEGORY_SLUGS["Artificial Intelligence"]}` },
+      { label: "Firearms", href: `/section/${CATEGORY_SLUGS["Firearms"]}` },
+      { label: "Sports", href: `/section/${CATEGORY_SLUGS["Sports"]}` },
+      { label: "Contact", href: "/contact" },
+    ],
+  },
+];
 
 export function Footer() {
   return (
     <footer className="text-white mt-12" style={{ backgroundColor: "#111" }}>
       <div className="max-w-[1200px] mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h3 className="mb-3 flex flex-wrap items-baseline gap-2 leading-tight">
               <span
                 className={`${wordmarkMichaelsdailybrief.className} text-[1.5rem] sm:text-[1.75rem] font-extrabold tracking-tight`}
@@ -34,58 +67,26 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Sections */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider mb-3 text-gray-300">
-              Sections
-            </h4>
-            <ul className="space-y-1.5">
-              {CATEGORIES.slice(0, 4).map((cat) => (
-                <li key={cat}>
-                  <Link
-                    href={`/section/${CATEGORY_SLUGS[cat as Category]}`}
-                    className="text-gray-400 text-xs hover:text-white transition-colors"
-                  >
-                    {cat}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider mb-3 text-gray-300">
-              More
-            </h4>
-            <ul className="space-y-1.5">
-              {CATEGORIES.slice(4).map((cat) => (
-                <li key={cat}>
-                  <Link
-                    href={`/section/${CATEGORY_SLUGS[cat as Category]}`}
-                    className="text-gray-400 text-xs hover:text-white transition-colors"
-                  >
-                    {cat}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider mb-3 text-gray-300">
-              Contact
-            </h4>
-            <ul className="space-y-1.5">
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-gray-400 text-xs hover:text-white transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Section columns */}
+          {FOOTER_SECTIONS.map((section) => (
+            <div key={section.heading}>
+              <h4 className="text-xs font-bold uppercase tracking-wider mb-3 text-gray-300">
+                {section.heading}
+              </h4>
+              <ul className="space-y-1.5">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-gray-400 text-xs hover:text-white transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         <div className="border-t border-white/10 mt-8 pt-6 text-center text-gray-500 text-[0.625rem]">
