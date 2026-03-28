@@ -1,26 +1,204 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+  font-family: "Lora";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/lora/v35/0QI6MX1D_JOuGQbT0gvTJPa787weuyJGmKxemMeZ.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZhrib2Bg-4.woff2")
+    format("woff2");
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-dark: #111111;
+  --color-accent: #E01A2B;
+  --color-accent-dark: #C4162A;
+  --color-accent-light: #FF1E33;
+  --color-gray-50: #F8F9FA;
+  --color-gray-100: #F0F1F3;
+  --color-gray-200: #E2E3E5;
+  --color-gray-300: #CED0D4;
+  --color-gray-400: #ADB1B8;
+  --color-gray-500: #8C929A;
+  --color-gray-600: #6C757D;
+  --color-gray-700: #495057;
+  --color-gray-800: #343A40;
+  --color-gray-900: #1a1a1a;
+  --font-serif: "Lora", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* NR-style headline hierarchy */
+.headline-hero {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #1a1a1a;
+}
+
+.headline-featured {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  color: #1a1a1a;
+}
+
+.headline-card {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.3;
+  color: #1a1a1a;
+}
+
+.headline-compact {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: #1a1a1a;
+}
+
+.headline-sidebar {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+/* NR category label - always red text, uppercase */
+.category-label {
+  display: inline-block;
+  color: #E01A2B;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* NR section header with red bottom border */
+.section-header {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #1a1a1a;
+  border-bottom: 3px solid #E01A2B;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* NR Corner-style header */
+.corner-header {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #E01A2B;
+  text-align: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 1rem;
+}
+
+/* Author line - NR style */
+.byline {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: #6C757D;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.byline-author {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* Metadata line */
+.metadata {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  color: #6C757D;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Trending bar */
+.trending-bar {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Article hover effects */
+.article-card:hover .headline-card,
+.article-card:hover .headline-compact,
+.article-card:hover .headline-featured,
+.article-card:hover .headline-sidebar {
+  color: #E01A2B;
+}
+
+.article-card {
+  transition: all 0.15s ease;
+}
+
+/* NR-style bullet point for related stories */
+.related-bullet::before {
+  content: "\2022";
+  color: #E01A2B;
+  font-size: 1.25rem;
+  margin-right: 0.5rem;
+  line-height: 1;
+}
+
+/* NR subscribe button */
+.btn-subscribe {
+  background-color: #E01A2B;
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 1.25rem;
+  border-radius: 2px;
+  transition: background-color 0.15s;
+}
+
+.btn-subscribe:hover {
+  background-color: #C4162A;
 }
