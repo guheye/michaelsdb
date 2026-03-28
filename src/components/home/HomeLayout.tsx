@@ -71,6 +71,44 @@ function ArticleRow({ article }: { article: Article }) {
   );
 }
 
+/** NR row 1 under lead: red circle + bold sans headline only */
+function RelatedTextLink({ article }: { article: Article }) {
+  const title = article.rewrittenTitle || article.originalTitle;
+  return (
+    <Link
+      href={`/article/${article.id}`}
+      className="related-bullet related-text-link flex items-start text-gray-900 hover:text-accent transition-colors"
+    >
+      {title}
+    </Link>
+  );
+}
+
+/** NR row 2 under lead: image + category + headline + byline + dek */
+function RelatedImageCard({ article }: { article: Article }) {
+  const title = article.rewrittenTitle || article.originalTitle;
+  const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
+  return (
+    <Link href={`/article/${article.id}`} className="article-card block group">
+      <div className="w-full aspect-[3/2] overflow-hidden mb-2">
+        <img
+          src={imgSrc}
+          alt=""
+          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+        />
+      </div>
+      <div className="category-label mb-1">{article.category}</div>
+      <h3 className="headline-card mb-1 line-clamp-3">{title}</h3>
+      <div className="byline">
+        By <span className="byline-author">{article.author || "Staff"}</span>
+      </div>
+      {article.excerpt && (
+        <p className="text-gray-600 text-sm leading-relaxed mt-1 line-clamp-2">{article.excerpt}</p>
+      )}
+    </Link>
+  );
+}
+
 function CompactItem({ article, index }: { article: Article; index?: number }) {
   const title = article.rewrittenTitle || article.originalTitle;
   return (
@@ -164,23 +202,29 @@ export function HomeLayout({
               )}
             </Link>
 
-            {/* Related stories bullet list */}
+            {/* NR-style under-lead: row 1 = two text + bullets; row 2 = two image cards */}
             {related.length > 0 && (
-              <div className="border-t border-gray-200 pt-3 mt-1">
-                <div className="grid grid-cols-2 gap-3">
-                  {related.slice(0, 4).map((article) => {
-                    const title = article.rewrittenTitle || article.originalTitle;
-                    return (
-                      <Link
-                        key={article.id}
-                        href={`/article/${article.id}`}
-                        className="related-bullet flex items-start text-xs font-semibold text-gray-900 hover:text-accent transition-colors leading-snug"
-                      >
-                        {title}
-                      </Link>
-                    );
-                  })}
+              <div className="border-t border-gray-200 pt-4 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 sm:divide-x sm:divide-gray-200 gap-y-4 sm:gap-y-0">
+                  {related[0] && (
+                    <div className={related[1] ? "sm:pr-5" : "sm:pr-0"}>
+                      <RelatedTextLink article={related[0]} />
+                    </div>
+                  )}
+                  {related[1] && (
+                    <div className="sm:pl-5">
+                      <RelatedTextLink article={related[1]} />
+                    </div>
+                  )}
                 </div>
+
+                {related.length >= 3 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mt-6 pt-6 border-t border-gray-200">
+                    {related.slice(2, 4).map((article) => (
+                      <RelatedImageCard key={article.id} article={article} />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
