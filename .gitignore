@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+.nyc_output/
 
 # next.js
 /.next/
@@ -20,8 +21,14 @@
 # production
 /build
 
+# build / cache
+.turbo/
+.eslintcache
+.cache/
+
 # misc
 .DS_Store
+Thumbs.db
 *.pem
 
 # debug
@@ -32,6 +39,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -41,4 +49,14 @@ yarn-error.log*
 next-env.d.ts
 
 # local SQLite (development)
-michaelsdb.db*
+*.db
+*.db-shm
+*.db-wal
+
+# editors / IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# Claude Code (machine-local)
+.claude/settings.local.json
