@@ -5,6 +5,7 @@ export interface FeedSource {
   url: string;
   tier: 1 | 2 | 3 | 4;
   defaultCategory: Category;
+  isShadow?: boolean;
 }
 
 export const FEED_SOURCES: FeedSource[] = [
@@ -238,5 +239,122 @@ export const FEED_SOURCES: FeedSource[] = [
     url: "https://www.mlb.com/feeds/news/rss/cardinals",
     tier: 3,
     defaultCategory: "Sports",
+  },
+];
+
+/**
+ * Shadow feeds — left-leaning and mainstream sources used ONLY for
+ * blindspot detection and bias spectrum analysis. These articles are
+ * never shown as standalone items in the main digest.
+ */
+export const SHADOW_FEED_SOURCES: FeedSource[] = [
+  // Lean Left
+  {
+    name: "New York Times",
+    url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "Washington Post",
+    url: "https://feeds.washingtonpost.com/rss/national",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "NPR",
+    url: "https://feeds.npr.org/1001/rss.xml",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "The Atlantic",
+    url: "https://www.theatlantic.com/feed/all/",
+    tier: 4,
+    defaultCategory: "Opinion",
+    isShadow: true,
+  },
+  {
+    name: "The Guardian US",
+    url: "https://www.theguardian.com/us-news/rss",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "PBS NewsHour",
+    url: "https://www.pbs.org/newshour/feeds/rss/headlines",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "USA Today",
+    url: "https://rssfeeds.usatoday.com/usatoday-NewsTopStories",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  // Left
+  {
+    name: "CNN",
+    url: "http://rss.cnn.com/rss/cnn_topstories.rss",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "MSNBC",
+    url: "https://www.msnbc.com/feeds/latest",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "Vox",
+    url: "https://www.vox.com/rss/index.xml",
+    tier: 4,
+    defaultCategory: "Policy",
+    isShadow: true,
+  },
+  {
+    name: "Slate",
+    url: "https://slate.com/feeds/all.rss",
+    tier: 4,
+    defaultCategory: "Opinion",
+    isShadow: true,
+  },
+  {
+    name: "Mother Jones",
+    url: "https://www.motherjones.com/feed/",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  {
+    name: "HuffPost",
+    url: "https://www.huffpost.com/section/front-page/feed",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  // Center
+  {
+    name: "BBC News",
+    url: "https://feeds.bbci.co.uk/news/rss.xml",
+    tier: 4,
+    defaultCategory: "News",
+    isShadow: true,
+  },
+  // Far Left
+  {
+    name: "Jacobin",
+    url: "https://jacobin.com/feed/",
+    tier: 4,
+    defaultCategory: "Opinion",
+    isShadow: true,
   },
 ];

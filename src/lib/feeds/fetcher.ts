@@ -1,7 +1,7 @@
 import Parser from "rss-parser";
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
-import { FEED_SOURCES } from "./sources";
+import { FEED_SOURCES, SHADOW_FEED_SOURCES } from "./sources";
 import { userAgent } from "@/lib/brand";
 import { delay } from "@/lib/utils/delay";
 
@@ -79,9 +79,10 @@ export async function fetchAllFeeds(category?: string): Promise<{
   let totalNew = 0;
   const errors: string[] = [];
 
+  const allSources = [...FEED_SOURCES, ...SHADOW_FEED_SOURCES];
   const sources = category
-    ? FEED_SOURCES.filter((s) => s.defaultCategory === category)
-    : FEED_SOURCES;
+    ? allSources.filter((s) => s.defaultCategory === category)
+    : allSources;
 
   // Ensure feeds exist in DB
   for (const source of sources) {
@@ -99,6 +100,7 @@ export async function fetchAllFeeds(category?: string): Promise<{
           tier: source.tier,
           defaultCategory: source.defaultCategory,
           isActive: 1,
+          isShadow: source.isShadow ? 1 : 0,
         })
         .run();
     }
@@ -134,7 +136,8 @@ export async function fetchAllFeeds(category?: string): Promise<{
 
         if (existing) continue;
 
-        const sourceConfig = FEED_SOURCES.find((s) => s.url === feed.url);
+        const sourceConfig = allSources.find((s) => s.url === feed.url);
+        const isShadow = sourceConfig?.isShadow ? 1 : 0;
 
         db.insert(schema.articles)
           .values({
@@ -152,7 +155,8 @@ export async function fetchAllFeeds(category?: string): Promise<{
             fetchedAt: new Date().toISOString(),
             category: sourceConfig?.defaultCategory || null,
             priority: 5,
-            status: "new",
+            status: isShadow ? "shadow" : "new",
+            isShadow,
           })
           .run();
 
