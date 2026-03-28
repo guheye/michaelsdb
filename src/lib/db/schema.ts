@@ -8,6 +8,7 @@ export const feeds = sqliteTable("feeds", {
   defaultCategory: text("default_category"),
   lastFetchedAt: text("last_fetched_at"),
   isActive: integer("is_active").notNull().default(1),
+  isShadow: integer("is_shadow").notNull().default(0),
 });
 
 export const articles = sqliteTable("articles", {
@@ -28,6 +29,33 @@ export const articles = sqliteTable("articles", {
   status: text("status").notNull().default("new"),
   aiProcessedAt: text("ai_processed_at"),
   analysis: text("analysis"),
+  storyId: integer("story_id"),
+  isShadow: integer("is_shadow").notNull().default(0),
+});
+
+export const stories = sqliteTable("stories", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  summary: text("summary"),
+  articleCount: integer("article_count").notNull().default(0),
+  leftCount: integer("left_count").notNull().default(0),
+  centerCount: integer("center_count").notNull().default(0),
+  rightCount: integer("right_count").notNull().default(0),
+  biasVerdict: text("bias_verdict"),
+  isBlindspotLeft: integer("is_blindspot_left").notNull().default(0),
+  isBlindspotRight: integer("is_blindspot_right").notNull().default(0),
+  framingVerdict: text("framing_verdict"),
+  framingAnalysis: text("framing_analysis"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const sourceBiasRatings = sqliteTable("source_bias_ratings", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  sourceName: text("source_name").notNull().unique(),
+  biasRating: text("bias_rating").notNull(),
+  updatedAt: text("updated_at").notNull(),
 });
 
 export const aggregationLogs = sqliteTable("aggregation_logs", {

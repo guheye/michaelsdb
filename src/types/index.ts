@@ -13,9 +13,11 @@ export interface Article {
   fetchedAt: string;
   category: string | null;
   priority: number;
-  status: "new" | "processing" | "ready" | "failed";
+  status: "new" | "processing" | "ready" | "failed" | "shadow";
   aiProcessedAt: string | null;
   analysis: string | null;
+  storyId: number | null;
+  isShadow: number;
 }
 
 export interface Feed {
@@ -26,7 +28,50 @@ export interface Feed {
   defaultCategory: string | null;
   lastFetchedAt: string | null;
   isActive: number;
+  isShadow: number;
 }
+
+export interface Story {
+  id: number;
+  slug: string;
+  title: string;
+  summary: string | null;
+  articleCount: number;
+  leftCount: number;
+  centerCount: number;
+  rightCount: number;
+  biasVerdict: string | null;
+  isBlindspotLeft: number;
+  isBlindspotRight: number;
+  framingVerdict: string | null;
+  framingAnalysis: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type BiasRating =
+  | "Far Left"
+  | "Left"
+  | "Lean Left"
+  | "Center"
+  | "Lean Right"
+  | "Right"
+  | "Far Right";
+
+export type BiasVerdict =
+  | "Heavily Left-Covered"
+  | "Left-Leaning Coverage"
+  | "Balanced Coverage"
+  | "Right-Leaning Coverage"
+  | "Heavily Right-Covered"
+  | "Single Source";
+
+export type FramingVerdict =
+  | "Fairly Reported"
+  | "Missing Context"
+  | "Loaded Language"
+  | "One-Sided"
+  | "Mixed Framing";
 
 export interface AggregationLog {
   id: number;
