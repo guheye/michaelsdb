@@ -123,4 +123,120 @@ export const FEED_SOURCES: FeedSource[] = [
     tier: 4,
     defaultCategory: "Political Economy",
   },
+
+  // Tier 2 — Tech
+  {
+    name: "Hacker News",
+    url: "https://hnrss.org/frontpage",
+    tier: 2,
+    defaultCategory: "Tech",
+  },
+  {
+    name: "Ars Technica",
+    url: "https://feeds.arstechnica.com/arstechnica/index",
+    tier: 2,
+    defaultCategory: "Tech",
+  },
+
+  // Tier 3 — Tech
+  {
+    name: "Wired",
+    url: "https://www.wired.com/feed/rss",
+    tier: 3,
+    defaultCategory: "Tech",
+  },
+
+  // Tier 2 — AI
+  {
+    name: "MIT Technology Review AI",
+    url: "https://www.technologyreview.com/feed/",
+    tier: 2,
+    defaultCategory: "AI",
+  },
+  {
+    name: "The Verge AI",
+    url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+    tier: 2,
+    defaultCategory: "AI",
+  },
+
+  // Tier 2 — Markets
+  {
+    name: "Bloomberg",
+    url: "https://feeds.bloomberg.com/markets/news.rss",
+    tier: 2,
+    defaultCategory: "Markets",
+  },
+  {
+    name: "Financial Times",
+    url: "https://www.ft.com/rss/home",
+    tier: 2,
+    defaultCategory: "Markets",
+  },
+  {
+    name: "WSJ Markets",
+    url: "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+    tier: 2,
+    defaultCategory: "Markets",
+  },
+
+  // Tier 3 — Art & Luxury
+  {
+    name: "Sotheby's",
+    url: "https://www.sothebys.com/en/rss",
+    tier: 3,
+    defaultCategory: "Art & Luxury",
+  },
+  {
+    name: "Christie's",
+    url: "https://www.christies.com/rss/lotfinderrss.aspx",
+    tier: 3,
+    defaultCategory: "Art & Luxury",
+  },
+  {
+    name: "Robb Report",
+    url: "https://robbreport.com/feed/",
+    tier: 3,
+    defaultCategory: "Art & Luxury",
+  },
+  {
+    name: "Architectural Digest",
+    url: "https://www.architecturaldigest.com/feed/rss",
+    tier: 3,
+    defaultCategory: "Art & Luxury",
+  },
+  {
+    name: "Artnet News",
+    url: "https://news.artnet.com/feed",
+    tier: 3,
+    defaultCategory: "Art & Luxury",
+  },
+  {
+    name: "duPont Registry",
+    url: "https://blog.dupontregistry.com/feed/",
+    tier: 3,
+    defaultCategory: "Art & Luxury",
+  },
+
+  // Tier 3 — Firearms
+  {
+    name: "American Rifleman",
+    url: "https://www.americanrifleman.org/feed/",
+    tier: 3,
+    defaultCategory: "Firearms",
+  },
+  {
+    name: "Shooting Illustrated",
+    url: "https://www.shootingillustrated.com/feed/",
+    tier: 3,
+    defaultCategory: "Firearms",
+  },
+
+  // Tier 3 — Sports
+  {
+    name: "STL Cardinals",
+    url: "https://www.mlb.com/feeds/news/rss/cardinals",
+    tier: 3,
+    defaultCategory: "Sports",
+  },
 ];
