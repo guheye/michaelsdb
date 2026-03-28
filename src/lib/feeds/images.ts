@@ -56,8 +56,8 @@ export async function fetchMissingImages(limit = 20, category?: string): Promise
     }
   }
 
-  // Second pass: LLM-assisted Unsplash search for remaining
-  if (stillMissing.length > 0 && process.env.UNSPLASH_ACCESS_KEY) {
+  // Second pass: LLM-assisted Unsplash search (with AI image fallback) for remaining
+  if (stillMissing.length > 0) {
     const result = await fetchImagesWithLLM(stillMissing);
     updated += result.updated;
     errors += result.errors;
@@ -106,7 +106,7 @@ Return ONLY valid JSON, no explanation.`,
 
     const suggestions: { index: number; query: string }[] = JSON.parse(jsonMatch[0]);
 
-    // Query Unsplash for each suggestion
+    // Query Unsplash for each suggestion, fall back to AI image generation
     for (let j = 0; j < suggestions.length; j++) {
       const suggestion = suggestions[j];
       if (j > 0) await delay(UNSPLASH_GAP_MS);
@@ -114,7 +114,13 @@ Return ONLY valid JSON, no explanation.`,
       if (!article) continue;
 
       try {
-        const imageUrl = await searchUnsplash(suggestion.query);
+        let imageUrl = await searchUnsplash(suggestion.query);
+
+        // Fallback: generate an AI image if Unsplash failed (rate limited or no results)
+        if (!imageUrl) {
+          imageUrl = await generateAIImage(suggestion.query);
+        }
+
         if (imageUrl) {
           db.update(schema.articles)
             .set({ imageUrl })
@@ -133,13 +139,16 @@ Return ONLY valid JSON, no explanation.`,
   return { updated, errors };
 }
 
+/** Tracks whether Unsplash is currently rate-limited this run. */
+let unsplashRateLimited = false;
+
 /**
  * Search Unsplash for a photo matching the query.
- * Returns a sized image URL or null.
+ * Returns a sized image URL or null. Sets rate-limit flag on 429/403.
  */
 async function searchUnsplash(query: string): Promise<string | null> {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (!accessKey) return null;
+  if (!accessKey || unsplashRateLimited) return null;
 
   try {
     const params = new URLSearchParams({
@@ -157,6 +166,12 @@ async function searchUnsplash(query: string): Promise<string | null> {
       }
     );
 
+    if (response.status === 429 || response.status === 403) {
+      console.warn("Unsplash rate limited — switching to AI image fallback");
+      unsplashRateLimited = true;
+      return null;
+    }
+
     if (!response.ok) return null;
 
     const data = await response.json();
@@ -165,6 +180,34 @@ async function searchUnsplash(query: string): Promise<string | null> {
 
     // Use the "small" size (400px wide) for thumbnails, or "regular" (1080px) for hero
     return photo.urls?.regular || photo.urls?.small || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Generates a photo-realistic image via Pollinations.ai (free, no API key).
+ * Returns the image URL or null.
+ */
+async function generateAIImage(query: string): Promise<string | null> {
+  try {
+    const prompt = `editorial news photograph, ${query}, photojournalism style, high quality, no text, no watermark`;
+    const params = new URLSearchParams({
+      width: "800",
+      height: "500",
+      nologo: "true",
+      seed: String(Math.floor(Math.random() * 100000)),
+    });
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params}`;
+
+    // Verify the URL actually returns an image (Pollinations generates on first request)
+    const response = await fetch(url, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (response.ok) return url;
+    return null;
   } catch {
     return null;
   }
@@ -256,7 +299,7 @@ export function getPlaceholderImage(articleId: number, category?: string | null)
     "Science & Tech": "technology,science,computer",
     "Books & Ideas": "books,library,reading",
     "Tech": "technology,computers,code",
-    "AI": "artificial-intelligence,robot,neural",
+    "Artificial Intelligence": "artificial-intelligence,robot,neural",
     "Art & Luxury": "art,luxury,gallery",
     "Firearms": "firearms,shooting,outdoors",
     "Markets": "finance,stocks,wallstreet",
