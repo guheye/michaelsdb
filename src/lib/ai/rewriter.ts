@@ -2,6 +2,15 @@ import { getAnthropicClient } from "./client";
 import { EDITORIAL_SYSTEM_PROMPT } from "./prompts";
 import { db, schema } from "@/lib/db";
 import { eq, and, inArray } from "drizzle-orm";
+import type { Category } from "@/types";
+
+/** Verticals tied to specific feeds — keep DB category so section pages stay populated. */
+const PRESERVE_FEED_CATEGORY: Category[] = [
+  "Firearms",
+  "Sports",
+  "Art & Luxury",
+  "Markets",
+];
 
 interface RewriteResult {
   id: number;
@@ -79,9 +88,16 @@ export async function rewriteHeadlines(batchSize: number = 15, category?: string
 
     const now = new Date().toISOString();
     for (const result of results) {
+      const original = newArticles.find((a) => a.id === result.id);
+      const category =
+        original?.category &&
+        PRESERVE_FEED_CATEGORY.includes(original.category as Category)
+          ? original.category
+          : result.category;
+
       const updateData: Record<string, unknown> = {
         rewrittenTitle: result.rewritten_title,
-        category: result.category,
+        category,
         priority: result.priority,
         status: "ready",
         aiProcessedAt: now,
