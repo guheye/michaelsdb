@@ -144,6 +144,16 @@ try {
   `);
 } catch { /* indexes may already exist */ }
 
+// Fix NRA feed URLs: /feed/ was an article slug, not RSS (returned HTML; no items ingested).
+try {
+  sqlite.exec(`
+    UPDATE feeds SET url = 'https://www.americanrifleman.org/rss'
+      WHERE url = 'https://www.americanrifleman.org/feed/';
+    UPDATE feeds SET url = 'https://www.shootingillustrated.com/rss'
+      WHERE url = 'https://www.shootingillustrated.com/feed/';
+  `);
+} catch { /* ignore */ }
+
 export { schema };
 
 // Seed bias ratings on startup (lazy — runs once per process)

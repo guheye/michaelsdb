@@ -220,15 +220,16 @@ export const FEED_SOURCES: FeedSource[] = [
   },
 
   // Tier 3 — Firearms
+  // Use /rss, not /feed/ — on these sites /feed/ matches a blog slug and returns HTML.
   {
     name: "American Rifleman",
-    url: "https://www.americanrifleman.org/feed/",
+    url: "https://www.americanrifleman.org/rss",
     tier: 3,
     defaultCategory: "Firearms",
   },
   {
     name: "Shooting Illustrated",
-    url: "https://www.shootingillustrated.com/feed/",
+    url: "https://www.shootingillustrated.com/rss",
     tier: 3,
     defaultCategory: "Firearms",
   },
