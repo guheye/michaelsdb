@@ -14,6 +14,7 @@ import { AggregatePasswordModal } from "@/components/ui/AggregatePasswordModal";
 export function Header() {
   const [aggregating, setAggregating] = useState(false);
   const [lastResult, setLastResult] = useState<string | null>(null);
+  const [aggregatePhase, setAggregatePhase] = useState("Preparing aggregation...");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [pendingMenuClose, setPendingMenuClose] = useState(false);
@@ -28,7 +29,16 @@ export function Header() {
     setShowPasswordModal(false);
     if (pendingMenuClose) { setMenuOpen(false); setPendingMenuClose(false); }
     setAggregating(true);
+    setAggregatePhase("Pulling latest feeds...");
     setLastResult(null);
+    const phaseTimer = window.setInterval(() => {
+      setAggregatePhase((current) => {
+        if (current === "Pulling latest feeds...") return "Clustering related stories...";
+        if (current === "Clustering related stories...") return "Rewriting summaries...";
+        if (current === "Rewriting summaries...") return "Refreshing images...";
+        return "Finalizing updates...";
+      });
+    }, 2600);
     try {
       const res = await fetch("/api/aggregate", {
         method: "POST",
@@ -53,6 +63,7 @@ export function Header() {
     } catch {
       setLastResult("Failed to connect");
     } finally {
+      window.clearInterval(phaseTimer);
       setAggregating(false);
     }
   }
@@ -142,6 +153,13 @@ export function Header() {
         {lastResult && (
           <div className="bg-gray-800 text-center py-1.5 px-4">
             <span className="text-xs text-gray-300">{lastResult}</span>
+          </div>
+        )}
+        {aggregating && (
+          <div className="bg-gray-900/90 text-center py-1 px-4 border-t border-white/10">
+            <span className="text-[11px] text-gray-400 font-sans tracking-wide animate-pulse">
+              {aggregatePhase}
+            </span>
           </div>
         )}
       </header>

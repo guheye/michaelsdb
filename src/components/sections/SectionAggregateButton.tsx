@@ -6,12 +6,22 @@ import { AggregatePasswordModal } from "@/components/ui/AggregatePasswordModal";
 export function SectionAggregateButton({ category }: { category: string }) {
   const [aggregating, setAggregating] = useState(false);
   const [lastResult, setLastResult] = useState<string | null>(null);
+  const [aggregatePhase, setAggregatePhase] = useState("Preparing aggregation...");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   async function handleAggregate(password: string) {
     setShowPasswordModal(false);
     setAggregating(true);
+    setAggregatePhase("Pulling latest feeds...");
     setLastResult(null);
+    const phaseTimer = window.setInterval(() => {
+      setAggregatePhase((current) => {
+        if (current === "Pulling latest feeds...") return "Clustering related stories...";
+        if (current === "Clustering related stories...") return "Rewriting summaries...";
+        if (current === "Rewriting summaries...") return "Refreshing images...";
+        return "Finalizing updates...";
+      });
+    }, 2600);
     try {
       const res = await fetch(
         `/api/aggregate?category=${encodeURIComponent(category)}`,
@@ -41,6 +51,7 @@ export function SectionAggregateButton({ category }: { category: string }) {
     } catch {
       setLastResult("Failed to connect");
     } finally {
+      window.clearInterval(phaseTimer);
       setAggregating(false);
     }
   }
@@ -88,7 +99,8 @@ export function SectionAggregateButton({ category }: { category: string }) {
           `Aggregate ${category}`
         )}
       </button>
-      {lastResult && (
+      {aggregating && <span className="text-xs text-gray-500 animate-pulse">{aggregatePhase}</span>}
+      {!aggregating && lastResult && (
         <span className="text-xs text-gray-500">{lastResult}</span>
       )}
     </div>
