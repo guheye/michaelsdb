@@ -1,20 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import { AggregatePasswordModal } from "@/components/ui/AggregatePasswordModal";
 
 export function SectionAggregateButton({ category }: { category: string }) {
   const [aggregating, setAggregating] = useState(false);
   const [lastResult, setLastResult] = useState<string | null>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  async function handleAggregate() {
-    if (aggregating) return;
+  async function handleAggregate(password: string) {
+    setShowPasswordModal(false);
     setAggregating(true);
     setLastResult(null);
     try {
       const res = await fetch(
-        `/api/aggregate?category=${encodeURIComponent(category)}`
+        `/api/aggregate?category=${encodeURIComponent(category)}`,
+        {
+          method: "POST",
+          headers: { "x-aggregate-secret": password },
+        }
       );
       const data = await res.json();
+      if (res.status === 401) {
+        setLastResult("Incorrect password.");
+        return;
+      }
       if (res.status === 429 && data.retryAfterSeconds != null) {
         setLastResult(
           `Please wait ${data.retryAfterSeconds}s before aggregating again.`
@@ -36,9 +46,16 @@ export function SectionAggregateButton({ category }: { category: string }) {
   }
 
   return (
+    <>
+      {showPasswordModal && (
+        <AggregatePasswordModal
+          onConfirm={handleAggregate}
+          onCancel={() => setShowPasswordModal(false)}
+        />
+      )}
     <div className="flex items-center gap-3">
       <button
-        onClick={handleAggregate}
+        onClick={() => { if (!aggregating) setShowPasswordModal(true); }}
         disabled={aggregating}
         className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-sans font-bold uppercase tracking-wider border border-gray-300 hover:bg-gray-100 transition-colors disabled:opacity-50"
       >
@@ -75,5 +92,6 @@ export function SectionAggregateButton({ category }: { category: string }) {
         <span className="text-xs text-gray-500">{lastResult}</span>
       )}
     </div>
+    </>
   );
 }

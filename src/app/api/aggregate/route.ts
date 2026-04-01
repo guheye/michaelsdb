@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/feeds/fetcher";
 import { rewriteHeadlines } from "@/lib/ai/rewriter";
@@ -8,7 +9,23 @@ import { acquireAggregateSlot } from "@/lib/server/aggregate-rate-limit";
 
 export const dynamic = "force-dynamic";
 
+function checkSecret(request: NextRequest): boolean {
+  const secret = process.env.AGGREGATE_SECRET;
+  if (!secret) return true; // guard is opt-in; if env var not set, allow (dev convenience)
+  const provided = request.headers.get("x-aggregate-secret") ?? "";
+  const expected = Buffer.from(secret, "utf8");
+  // Pad/truncate provided to the same byte length so timingSafeEqual never throws
+  const probe = Buffer.alloc(expected.length, 0);
+  Buffer.from(provided, "utf8").copy(probe, 0, 0, expected.length);
+  // Both length check and value check must pass; order doesn't matter for timing safety
+  return provided.length === secret.length && timingSafeEqual(expected, probe);
+}
+
 export async function POST(request: NextRequest) {
+  if (!checkSecret(request)) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   const category = request.nextUrl.searchParams.get("category") || undefined;
 
   const slot = acquireAggregateSlot();
@@ -87,9 +104,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Also support GET for easy browser testing
-export async function GET(request: NextRequest) {
-  return POST(request);
 }

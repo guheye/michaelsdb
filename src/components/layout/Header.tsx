@@ -9,19 +9,36 @@ import {
 } from "@/lib/brand";
 import { wordmarkMichaelsdailybrief } from "@/lib/fonts";
 import { CATEGORIES, CATEGORY_SLUGS, type Category } from "@/types";
+import { AggregatePasswordModal } from "@/components/ui/AggregatePasswordModal";
 
 export function Header() {
   const [aggregating, setAggregating] = useState(false);
   const [lastResult, setLastResult] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [pendingMenuClose, setPendingMenuClose] = useState(false);
 
-  async function handleAggregate() {
+  function requestAggregate(fromDrawer = false) {
     if (aggregating) return;
+    if (fromDrawer) setPendingMenuClose(true);
+    setShowPasswordModal(true);
+  }
+
+  async function handleAggregate(password: string) {
+    setShowPasswordModal(false);
+    if (pendingMenuClose) { setMenuOpen(false); setPendingMenuClose(false); }
     setAggregating(true);
     setLastResult(null);
     try {
-      const res = await fetch("/api/aggregate");
+      const res = await fetch("/api/aggregate", {
+        method: "POST",
+        headers: { "x-aggregate-secret": password },
+      });
       const data = await res.json();
+      if (res.status === 401) {
+        setLastResult("Incorrect password.");
+        return;
+      }
       if (res.status === 429 && data.retryAfterSeconds != null) {
         setLastResult(`Please wait ${data.retryAfterSeconds}s before aggregating again.`);
         return;
@@ -33,7 +50,7 @@ export function Header() {
       } else {
         setLastResult("Error: " + (data.error || "unknown"));
       }
-    } catch (err) {
+    } catch {
       setLastResult("Failed to connect");
     } finally {
       setAggregating(false);
@@ -82,7 +99,7 @@ export function Header() {
               Contact
             </Link>
             <button
-              onClick={handleAggregate}
+              onClick={() => requestAggregate()}
               disabled={aggregating}
               className="btn-subscribe flex items-center gap-2"
             >
@@ -102,7 +119,7 @@ export function Header() {
 
           {/* Mobile aggregate button (refresh icon) */}
           <button
-            onClick={handleAggregate}
+            onClick={() => requestAggregate()}
             disabled={aggregating}
             className="md:hidden flex items-center justify-center w-8 h-8"
             aria-label="Aggregate"
@@ -128,6 +145,13 @@ export function Header() {
           </div>
         )}
       </header>
+
+      {showPasswordModal && (
+        <AggregatePasswordModal
+          onConfirm={handleAggregate}
+          onCancel={() => { setShowPasswordModal(false); setPendingMenuClose(false); }}
+        />
+      )}
 
       {/* Mobile slide-out drawer */}
       {menuOpen && (
@@ -194,7 +218,7 @@ export function Header() {
             {/* Aggregate button in drawer */}
             <div className="px-4 py-4 border-t border-white/10">
               <button
-                onClick={() => { handleAggregate(); setMenuOpen(false); }}
+                onClick={() => requestAggregate(true)}
                 disabled={aggregating}
                 className="btn-subscribe w-full flex items-center justify-center gap-2"
               >
