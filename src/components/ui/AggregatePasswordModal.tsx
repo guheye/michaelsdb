@@ -40,9 +40,21 @@ export function AggregatePasswordModal({ onConfirm, onCancel }: Props) {
             if (password) onConfirm(password);
           }}
         >
+          {/* Hidden username so iOS/macOS recognises this as a sign-in form and offers saved passwords / FaceID */}
+          <input
+            type="text"
+            autoComplete="username"
+            name="username"
+            value="aggregate"
+            readOnly
+            aria-hidden="true"
+            tabIndex={-1}
+            className="absolute w-0 h-0 overflow-hidden opacity-0"
+          />
           <input
             ref={inputRef}
             type="password"
+            name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
