@@ -151,12 +151,12 @@ export function Header() {
 
         {/* Result toast */}
         {lastResult && (
-          <div className="bg-gray-800 text-center py-1.5 px-4">
+          <div className="text-center py-1.5 px-4 border-t border-white/10" style={{ backgroundColor: "#111" }}>
             <span className="text-xs text-gray-300">{lastResult}</span>
           </div>
         )}
         {aggregating && (
-          <div className="bg-gray-900/90 text-center py-1 px-4 border-t border-white/10">
+          <div className="text-center py-1 px-4 border-t border-white/10" style={{ backgroundColor: "#111" }}>
             <span className="text-[11px] text-gray-400 font-sans tracking-wide animate-pulse">
               {aggregatePhase}
             </span>
