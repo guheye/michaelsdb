@@ -1,6 +1,7 @@
 import { db, schema } from "@/lib/db";
 import { eq, and, isNull } from "drizzle-orm";
-import { getAnthropicClient } from "@/lib/ai/client";
+import { getAnthropicClient, AI_MODEL } from "@/lib/ai/client";
+import { getTitle } from "@/lib/utils/articles";
 import { userAgent } from "@/lib/brand";
 import { delay } from "@/lib/utils/delay";
 
@@ -81,26 +82,30 @@ async function fetchImagesWithLLM(
 
     // Batch headlines for a single LLM call to save tokens
     const headlineList = articles.map((a, i) => {
-      const title = a.rewrittenTitle || a.originalTitle;
+      const title = getTitle(a);
       return `${i + 1}. [${a.category || "News"}] "${title}"`;
     }).join("\n");
 
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: `For each news headline below, suggest 1-3 Unsplash search keywords that would find a relevant, editorial-quality photo. Focus on concrete visual subjects (people, places, objects) rather than abstract concepts. Return JSON array of objects with "index" (1-based) and "query" (the search string).
+    const response = await client.messages.create(
+      {
+        model: AI_MODEL,
+        max_tokens: 1024,
+        messages: [
+          {
+            role: "user",
+            content: `For each news headline below, suggest 1-3 Unsplash search keywords that would find a relevant, editorial-quality photo. Focus on concrete visual subjects (people, places, objects) rather than abstract concepts. Return JSON array of objects with "index" (1-based) and "query" (the search string).
 
 ${headlineList}
 
 Return ONLY valid JSON, no explanation.`,
-        },
-      ],
-    });
+          },
+        ],
+      },
+      { signal: AbortSignal.timeout(30_000) }
+    );
 
-    const text = response.content[0].type === "text" ? response.content[0].text : "";
+    const block = response.content?.[0];
+    const text = block?.type === "text" ? block.text : "";
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) return { updated: 0, errors: articles.length };
 
@@ -139,8 +144,8 @@ Return ONLY valid JSON, no explanation.`,
   return { updated, errors };
 }
 
-/** Tracks whether Unsplash is currently rate-limited this run. */
-let unsplashRateLimited = false;
+/** Timestamp (ms) until which Unsplash calls are skipped due to rate limiting. Resets after 1 hour. */
+let unsplashRateLimitedUntil = 0;
 
 /**
  * Search Unsplash for a photo matching the query.
@@ -148,7 +153,7 @@ let unsplashRateLimited = false;
  */
 async function searchUnsplash(query: string): Promise<string | null> {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (!accessKey || unsplashRateLimited) return null;
+  if (!accessKey || Date.now() < unsplashRateLimitedUntil) return null;
 
   try {
     const params = new URLSearchParams({
@@ -167,8 +172,8 @@ async function searchUnsplash(query: string): Promise<string | null> {
     );
 
     if (response.status === 429 || response.status === 403) {
-      console.warn("Unsplash rate limited — switching to AI image fallback");
-      unsplashRateLimited = true;
+      console.warn("Unsplash rate limited — pausing for 1 hour, switching to AI image fallback");
+      unsplashRateLimitedUntil = Date.now() + 60 * 60 * 1000;
       return null;
     }
 
@@ -186,11 +191,13 @@ async function searchUnsplash(query: string): Promise<string | null> {
 }
 
 /**
- * Generates a photo-realistic image via Pollinations.ai (free, no API key).
+ * Generates a photo-realistic image via Pollinations.ai.
+ * Uses API key auth when available for priority generation.
  * Returns the image URL or null.
  */
 async function generateAIImage(query: string): Promise<string | null> {
   try {
+    const apiKey = process.env.POLLINATIONS_API_KEY;
     const prompt = `editorial news photograph, ${query}, photojournalism style, high quality, no text, no watermark`;
     const params = new URLSearchParams({
       width: "800",
@@ -198,12 +205,14 @@ async function generateAIImage(query: string): Promise<string | null> {
       nologo: "true",
       seed: String(Math.floor(Math.random() * 100000)),
     });
-    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params}`;
+    if (apiKey) params.set("key", apiKey);
+
+    const url = `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?${params}`;
 
     // Verify the URL actually returns an image (Pollinations generates on first request)
     const response = await fetch(url, {
       method: "HEAD",
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(20000),
     });
 
     if (response.ok) return url;

@@ -1,4 +1,5 @@
-import { getAnthropicClient } from "./client";
+import { getAnthropicClient, AI_MODEL } from "./client";
+import { getTitle } from "@/lib/utils/articles";
 import { db, schema } from "@/lib/db";
 import { eq, and, isNull, inArray, gte, sql } from "drizzle-orm";
 
@@ -85,24 +86,27 @@ export async function clusterArticles(): Promise<{
 
     const payload = batch.map((a) => ({
       id: a.id,
-      title: a.rewrittenTitle || a.originalTitle,
+      title: getTitle(a),
       source: a.sourceName,
       excerpt: (a.excerpt || "").slice(0, 150),
     }));
 
     try {
       const client = getAnthropicClient();
-      const response = await client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 4096,
-        system: CLUSTERING_SYSTEM_PROMPT,
-        messages: [
-          { role: "user", content: JSON.stringify(payload) },
-        ],
-      });
+      const response = await client.messages.create(
+        {
+          model: AI_MODEL,
+          max_tokens: 4096,
+          system: CLUSTERING_SYSTEM_PROMPT,
+          messages: [
+            { role: "user", content: JSON.stringify(payload) },
+          ],
+        },
+        { signal: AbortSignal.timeout(30_000) }
+      );
 
-      const text =
-        response.content[0].type === "text" ? response.content[0].text : "";
+      const block = response.content?.[0];
+      const text = block?.type === "text" ? block.text : "";
 
       let clusters: ClusterResult[];
       try {

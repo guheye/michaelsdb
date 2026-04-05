@@ -1,4 +1,5 @@
-import { getAnthropicClient } from "./client";
+import { getAnthropicClient, AI_MODEL } from "./client";
+import { getTitle } from "@/lib/utils/articles";
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { SOURCE_BIAS_MAP } from "@/lib/bias/ratings";
@@ -83,7 +84,7 @@ async function computeFramingAnalysis(
   const articleData = articles.map((a) => ({
     source: a.sourceName,
     bias_rating: SOURCE_BIAS_MAP[a.sourceName] || "Unknown",
-    headline: a.rewrittenTitle || a.originalTitle,
+    headline: getTitle(a),
     excerpt: a.excerpt ? a.excerpt.slice(0, 200) : "",
   }));
 
@@ -92,17 +93,25 @@ async function computeFramingAnalysis(
 Sources covering this story:
 ${JSON.stringify(articleData, null, 2)}`;
 
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 512,
-    system: FRAMING_SYSTEM_PROMPT,
-    messages: [{ role: "user", content: userMessage }],
-  });
+  const response = await client.messages.create(
+    {
+      model: AI_MODEL,
+      max_tokens: 512,
+      system: FRAMING_SYSTEM_PROMPT,
+      messages: [{ role: "user", content: userMessage }],
+    },
+    { signal: AbortSignal.timeout(30_000) }
+  );
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
+  const block = response.content?.[0];
+  const text = block?.type === "text" ? block.text : "";
 
-  const parsed: FramingResult = JSON.parse(text);
+  let parsed: FramingResult;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("Failed to parse framing analysis response as JSON");
+  }
 
   // Validate verdict
   const validVerdicts: FramingVerdict[] = [

@@ -1,4 +1,4 @@
-import { getAnthropicClient } from "./client";
+import { getAnthropicClient, AI_MODEL } from "./client";
 import { EDITORIAL_SYSTEM_PROMPT } from "./prompts";
 import { db, schema } from "@/lib/db";
 import { eq, and, inArray } from "drizzle-orm";
@@ -58,20 +58,23 @@ export async function rewriteHeadlines(batchSize: number = 15, category?: string
 
   try {
     const client = getAnthropicClient();
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 8192,
-      system: EDITORIAL_SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: JSON.stringify(articlesPayload),
-        },
-      ],
-    });
+    const response = await client.messages.create(
+      {
+        model: AI_MODEL,
+        max_tokens: 8192,
+        system: EDITORIAL_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: JSON.stringify(articlesPayload),
+          },
+        ],
+      },
+      { signal: AbortSignal.timeout(30_000) }
+    );
 
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "";
+    const block = response.content?.[0];
+    const text = block?.type === "text" ? block.text : "";
 
     let results: RewriteResult[];
     try {
