@@ -92,7 +92,7 @@ export function TickerSubheader({ data: controlledData }: TickerSubheaderProps =
   const items = [
     // Weather
     <span key="weather" className="inline-flex items-center gap-1.5">
-      <span>{data.weather.icon}</span>
+      <span className="ticker-weather-icon">{data.weather.icon}</span>
       <span className="font-semibold">{data.weather.location}</span>
       <span>{data.weather.temp}°F</span>
       <span className="text-gray-400">{data.weather.condition}</span>

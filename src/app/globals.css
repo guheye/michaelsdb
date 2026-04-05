@@ -181,6 +181,11 @@ body {
   display: none;
 }
 
+/* Invert weather emoji on dark ticker so light emojis (fog, cloud) stay visible */
+.ticker-weather-icon {
+  filter: brightness(0) invert(1);
+}
+
 /* Article hover effects */
 .article-card:hover .headline-card,
 .article-card:hover .headline-compact,

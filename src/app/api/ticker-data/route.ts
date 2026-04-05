@@ -123,7 +123,7 @@ async function fetchCardinals(): Promise<SportsScore> {
       return MOCK_DATA.sports;
     }
 
-    // Priority: live game > today's upcoming > most recent final
+    // Priority: live game > today's upcoming > recent final (until 6am next day) > next upcoming
     const liveGame = allGames.find((g: GameData) => {
       const status = g.status?.abstractGameState;
       return status === "Live";
@@ -131,21 +131,25 @@ async function fetchCardinals(): Promise<SportsScore> {
 
     if (liveGame) return parseGame(liveGame, "live");
 
-    const todayGames = allGames.filter((g: GameData) => g.gameDate?.startsWith(todayStr));
-    const todayUpcoming = todayGames.find((g: GameData) => g.status?.abstractGameState === "Preview");
-    if (todayUpcoming) return parseGame(todayUpcoming, "upcoming");
+    // Show most recent final until 6am the next morning
+    const finals = allGames
+      .filter((g: GameData) => g.status?.abstractGameState === "Final")
+      .sort((a: GameData, b: GameData) => new Date(b.gameDate).getTime() - new Date(a.gameDate).getTime());
+    if (finals.length > 0) {
+      const gameDate = new Date(finals[0].gameDate);
+      const cutoff = new Date(gameDate);
+      cutoff.setDate(cutoff.getDate() + 1);
+      cutoff.setHours(6, 0, 0, 0);
+      if (today < cutoff) {
+        return parseGame(finals[0], "final");
+      }
+    }
 
     // Find next upcoming game
     const upcoming = allGames
       .filter((g: GameData) => g.status?.abstractGameState === "Preview")
       .sort((a: GameData, b: GameData) => new Date(a.gameDate).getTime() - new Date(b.gameDate).getTime());
     if (upcoming.length > 0) return parseGame(upcoming[0], "upcoming");
-
-    // Most recent final
-    const finals = allGames
-      .filter((g: GameData) => g.status?.abstractGameState === "Final")
-      .sort((a: GameData, b: GameData) => new Date(b.gameDate).getTime() - new Date(a.gameDate).getTime());
-    if (finals.length > 0) return parseGame(finals[0], "final");
 
     return MOCK_DATA.sports;
   } catch (e) {
