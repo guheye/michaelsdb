@@ -84,15 +84,12 @@ export async function fetchAllFeeds(category?: string): Promise<{
     ? allSources.filter((s) => s.defaultCategory === category)
     : allSources;
 
-  // Ensure feeds exist in DB
+  // Ensure feeds exist in DB — single SELECT then check in-memory (avoids N+1)
+  const existingUrls = new Set(
+    db.select({ url: schema.feeds.url }).from(schema.feeds).all().map((f) => f.url)
+  );
   for (const source of sources) {
-    const existing = db
-      .select()
-      .from(schema.feeds)
-      .where(eq(schema.feeds.url, source.url))
-      .get();
-
-    if (!existing) {
+    if (!existingUrls.has(source.url)) {
       db.insert(schema.feeds)
         .values({
           name: source.name,
