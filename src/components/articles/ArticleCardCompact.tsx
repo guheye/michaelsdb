@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils/dates";
+import { getTitle } from "@/lib/utils/articles";
 import type { Article } from "@/types";
 
 export function ArticleCardCompact({
@@ -9,7 +10,7 @@ export function ArticleCardCompact({
   article: Article;
   index?: number;
 }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
 
   return (
     <Link

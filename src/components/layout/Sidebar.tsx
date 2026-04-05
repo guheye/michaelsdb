@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BRAND_DISPLAY } from "@/lib/brand";
 import { timeAgo } from "@/lib/utils/dates";
+import { getTitle } from "@/lib/utils/articles";
 import type { Article } from "@/types";
 
 export function Sidebar({ opinions }: { opinions: Article[] }) {
@@ -16,7 +17,7 @@ export function Sidebar({ opinions }: { opinions: Article[] }) {
 
         <div className="divide-y divide-gray-200">
           {opinions.slice(0, 5).map((article) => {
-            const title = article.rewrittenTitle || article.originalTitle;
+            const title = getTitle(article);
             return (
               <Link
                 key={article.id}

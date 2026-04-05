@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils/dates";
+import { getTitle } from "@/lib/utils/articles";
 import { getPlaceholderImage } from "@/lib/feeds/images";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { ArticleImage } from "@/components/ui/ArticleImage";
 import { SourceCountBadge } from "@/components/ui/SourceCountBadge";
 import { BiasVerdictBadge } from "@/components/ui/BiasVerdictBadge";
 import { BlindspotSection } from "@/components/home/BlindspotSection";
@@ -9,7 +11,7 @@ import type { Article, Story } from "@/types";
 
 /* ─── Mobile-optimized compact card: thumbnail on right ─── */
 function MobileCard({ article, story }: { article: Article; story?: Story }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
   return (
     <Link
@@ -28,9 +30,11 @@ function MobileCard({ article, story }: { article: Article; story?: Story }) {
         </div>
       </div>
       {imgSrc && (
-        <div className="flex-shrink-0 w-[100px] h-[72px] overflow-hidden rounded-sm">
-          <img src={imgSrc} alt="" className="w-full h-full object-cover" />
-        </div>
+        <ArticleImage
+          src={imgSrc}
+          containerClassName="flex-shrink-0 w-[100px] h-[72px] overflow-hidden rounded-sm"
+          className="w-full h-full object-cover"
+        />
       )}
     </Link>
   );
@@ -38,18 +42,16 @@ function MobileCard({ article, story }: { article: Article; story?: Story }) {
 
 /* ─── Desktop left-column card ─── */
 function LeftCard({ article, usePlaceholder = true, story }: { article: Article; usePlaceholder?: boolean; story?: Story }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   const imgSrc = article.imageUrl || (usePlaceholder ? getPlaceholderImage(article.id, article.category) : null);
   return (
     <Link href={`/article/${article.id}`} className="article-card block group mb-5">
       {imgSrc ? (
-        <div className="w-full h-[170px] overflow-hidden mb-2">
-          <img
-            src={imgSrc}
-            alt=""
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-          />
-        </div>
+        <ArticleImage
+          src={imgSrc}
+          containerClassName="w-full h-[170px] overflow-hidden mb-2"
+          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+        />
       ) : (
         <div className="w-full h-[170px] mb-2 bg-gray-100 flex items-center justify-center">
           <span className="text-gray-400 text-xs uppercase tracking-wider">Image pending</span>
@@ -77,20 +79,18 @@ function LeftCard({ article, usePlaceholder = true, story }: { article: Article;
 
 /* ─── Desktop article row ─── */
 function ArticleRow({ article, story }: { article: Article; story?: Story }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
   return (
     <Link
       href={`/article/${article.id}`}
       className="article-card flex gap-4 py-4 border-b border-gray-200 last:border-b-0 group"
     >
-      <div className="flex-shrink-0 w-[200px] h-[130px] overflow-hidden">
-        <img
-          src={imgSrc}
-          alt=""
-          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-        />
-      </div>
+      <ArticleImage
+        src={imgSrc}
+        containerClassName="flex-shrink-0 w-[200px] h-[130px] overflow-hidden"
+        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+      />
       <div className="flex-1 min-w-0">
         <div className="category-label mb-1">{article.category}</div>
         <h3 className="headline-card mb-1 line-clamp-3">
@@ -115,7 +115,7 @@ function ArticleRow({ article, story }: { article: Article; story?: Story }) {
 
 /** NR row 1 under lead: red circle + bold sans headline only */
 function RelatedTextLink({ article }: { article: Article }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   return (
     <Link
       href={`/article/${article.id}`}
@@ -128,17 +128,15 @@ function RelatedTextLink({ article }: { article: Article }) {
 
 /** NR row 2 under lead: image + category + headline + byline + dek */
 function RelatedImageCard({ article }: { article: Article }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
   return (
     <Link href={`/article/${article.id}`} className="article-card block group">
-      <div className="w-full aspect-[3/2] overflow-hidden mb-2">
-        <img
-          src={imgSrc}
-          alt=""
-          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-        />
-      </div>
+      <ArticleImage
+        src={imgSrc}
+        containerClassName="w-full aspect-[3/2] overflow-hidden mb-2"
+        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+      />
       <div className="category-label mb-1">{article.category}</div>
       <h3 className="headline-card mb-1 line-clamp-3">{title}</h3>
       <div className="byline">
@@ -152,7 +150,7 @@ function RelatedImageCard({ article }: { article: Article }) {
 }
 
 function CompactItem({ article, index, story }: { article: Article; index?: number; story?: Story }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   return (
     <Link
       href={`/article/${article.id}`}
@@ -203,7 +201,7 @@ export function HomeLayout({
   storyMap = new Map(),
   blindspotStories,
 }: HomeLayoutProps) {
-  const leadTitle = lead.rewrittenTitle || lead.originalTitle;
+  const leadTitle = getTitle(lead);
   const leadImg = lead.imageUrl || null;
 
   return (
@@ -213,9 +211,11 @@ export function HomeLayout({
         {/* Mobile hero */}
         <Link href={`/article/${lead.id}`} className="article-card block group mb-1">
           {leadImg ? (
-            <div className="w-full aspect-[16/9] overflow-hidden mb-3">
-              <img src={leadImg} alt="" className="w-full h-full object-cover" />
-            </div>
+            <ArticleImage
+              src={leadImg}
+              containerClassName="w-full aspect-[16/9] overflow-hidden mb-3"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full aspect-[16/9] mb-3 bg-gray-100 flex items-center justify-center">
               <span className="text-gray-400 text-xs uppercase tracking-wider">Image pending</span>
@@ -300,13 +300,11 @@ export function HomeLayout({
             <div className="col-span-5 pl-4 border-l border-gray-200">
               <Link href={`/article/${lead.id}`} className="article-card block group">
                 {leadImg ? (
-                  <div className="w-full h-[300px] overflow-hidden mb-3">
-                    <img
-                      src={leadImg}
-                      alt=""
-                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                    />
-                  </div>
+                  <ArticleImage
+                    src={leadImg}
+                    containerClassName="w-full h-[300px] overflow-hidden mb-3"
+                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  />
                 ) : (
                   <div className="w-full h-[300px] mb-3 bg-gray-100 flex items-center justify-center">
                     <span className="text-gray-400 text-xs uppercase tracking-wider">Image pending</span>

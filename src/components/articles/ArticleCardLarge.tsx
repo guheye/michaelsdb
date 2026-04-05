@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { CategoryTag } from "@/components/ui/CategoryTag";
+import { ArticleImage } from "@/components/ui/ArticleImage";
 import { timeAgo } from "@/lib/utils/dates";
+import { getTitle } from "@/lib/utils/articles";
 import type { Article } from "@/types";
 
 export function ArticleCardLarge({ article }: { article: Article }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   const hasImage = !!article.imageUrl;
 
   return (
@@ -15,10 +17,10 @@ export function ArticleCardLarge({ article }: { article: Article }) {
       {/* Background image */}
       <div className="relative h-[400px] bg-navy">
         {hasImage ? (
-          <img
+          <ArticleImage
             src={article.imageUrl!}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
+            containerClassName="w-full h-full"
+            className="object-cover"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy-dark" />

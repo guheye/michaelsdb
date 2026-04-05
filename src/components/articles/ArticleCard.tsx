@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { CategoryTag } from "@/components/ui/CategoryTag";
+import { ArticleImage } from "@/components/ui/ArticleImage";
 import { SourceCountBadge } from "@/components/ui/SourceCountBadge";
 import { BiasVerdictBadge } from "@/components/ui/BiasVerdictBadge";
 import { timeAgo } from "@/lib/utils/dates";
 import { getPlaceholderImage } from "@/lib/feeds/images";
+import { getTitle } from "@/lib/utils/articles";
 import type { Article, Story } from "@/types";
 
 export function ArticleCard({
@@ -15,7 +17,7 @@ export function ArticleCard({
   showImage?: boolean;
   story?: Story;
 }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   const imgSrc = article.imageUrl || getPlaceholderImage(article.id, article.category);
 
   return (
@@ -25,13 +27,11 @@ export function ArticleCard({
     >
       <div className={showImage ? "flex gap-4" : ""}>
         {showImage && (
-          <div className="flex-shrink-0 w-[140px] h-[90px] overflow-hidden">
-            <img
-              src={imgSrc}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <ArticleImage
+            src={imgSrc}
+            containerClassName="flex-shrink-0 w-[140px] h-[90px] overflow-hidden"
+            className="w-full h-full object-cover"
+          />
         )}
 
         <div className="flex-1 min-w-0">

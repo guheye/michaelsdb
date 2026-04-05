@@ -265,14 +265,19 @@ export default function HomePage() {
   const leftColumn = articles.slice(1, 4);
   // Related under lead (NR-style two-row block)
   const related = articles.slice(4, 8);
-  // Corner sidebar opinions
-  const opinions = articles.filter(
-    (a) => a.category === "Artificial Intelligence"
-  );
-  const cornerArticles = opinions.slice(0, 5);
+
+  // Build usedIds first so cornerArticles and remaining don't overlap with the hero
+  const usedIds = new Set([lead.id, ...leftColumn.map((a) => a.id), ...related.map((a) => a.id)]);
+
+  // Corner sidebar opinions — exclude articles already used in the hero
+  const cornerArticles = articles
+    .filter((a) => a.category === "Artificial Intelligence" && !usedIds.has(a.id))
+    .slice(0, 5);
+
+  // Add cornerArticles to usedIds so they don't also appear in the latest feed
+  for (const a of cornerArticles) usedIds.add(a.id);
 
   // Remaining for below-fold content
-  const usedIds = new Set([lead.id, ...leftColumn.map((a) => a.id), ...related.map((a) => a.id)]);
   const remaining = articles.filter((a) => !usedIds.has(a.id));
 
   // Trending (highest priority)

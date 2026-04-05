@@ -1,22 +1,22 @@
 import Link from "next/link";
+import { ArticleImage } from "@/components/ui/ArticleImage";
 import { timeAgo } from "@/lib/utils/dates";
+import { getTitle } from "@/lib/utils/articles";
 import type { Article } from "@/types";
 
 function ArticleRow({ article }: { article: Article }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   return (
     <Link
       href={`/article/${article.id}`}
       className="article-card flex gap-4 py-4 border-b border-gray-200 last:border-b-0 group"
     >
       {article.imageUrl && (
-        <div className="flex-shrink-0 w-[200px] h-[130px] overflow-hidden">
-          <img
-            src={article.imageUrl}
-            alt=""
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-          />
-        </div>
+        <ArticleImage
+          src={article.imageUrl}
+          containerClassName="flex-shrink-0 w-[200px] h-[130px] overflow-hidden"
+          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+        />
       )}
       <div className="flex-1 min-w-0">
         <div className="category-label mb-1">{article.category}</div>
@@ -37,7 +37,7 @@ function ArticleRow({ article }: { article: Article }) {
 }
 
 function CompactItem({ article, index }: { article: Article; index?: number }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   return (
     <Link
       href={`/article/${article.id}`}

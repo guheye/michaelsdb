@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SOURCE_BIAS_MAP } from "@/lib/bias/ratings";
+import { getTitle } from "@/lib/utils/articles";
 import type { Article, BiasRating } from "@/types";
 
 const BIAS_DOT_COLOR: Record<string, string> = {
@@ -30,7 +31,7 @@ export function SourceCard({
   article: Article;
   isCurrent?: boolean;
 }) {
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
   const biasRating = SOURCE_BIAS_MAP[article.sourceName] as BiasRating | undefined;
 
   return (

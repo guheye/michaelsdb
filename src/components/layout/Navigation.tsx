@@ -1,12 +1,11 @@
-"use client";
-
 import Link from "next/link";
+import { getTitle } from "@/lib/utils/articles";
 import type { Article } from "@/types";
 
 export function Navigation({ trending }: { trending?: Article[] }) {
   const trendingTopics = trending
     ? trending.slice(0, 6).map((a) => {
-        const title = a.rewrittenTitle || a.originalTitle;
+        const title = getTitle(a);
         const words = title.replace(/[:\u2014\-\u2013]/g, " ").split(/\s+/).filter(Boolean);
         const label = words.slice(0, 3).join(" ").toUpperCase();
         return { label, id: a.id };

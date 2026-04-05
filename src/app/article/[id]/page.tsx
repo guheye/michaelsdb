@@ -1,7 +1,9 @@
 import { db, schema } from "@/lib/db";
 import { eq, desc, and, ne, inArray } from "drizzle-orm";
+import { getTitle } from "@/lib/utils/articles";
 import { notFound } from "next/navigation";
 import { CategoryTag } from "@/components/ui/CategoryTag";
+import { ArticleImage } from "@/components/ui/ArticleImage";
 import { ArticleCard } from "@/components/articles/ArticleCard";
 import { FramingVerdictBadge } from "@/components/ui/FramingVerdictBadge";
 import { BiasVerdictBadge } from "@/components/ui/BiasVerdictBadge";
@@ -31,7 +33,7 @@ export default async function ArticlePage({
 
   if (!article) notFound();
 
-  const title = article.rewrittenTitle || article.originalTitle;
+  const title = getTitle(article);
 
   // Load story and sibling articles if this article belongs to a cluster
   let story: Story | null = null;
@@ -155,13 +157,12 @@ export default async function ArticlePage({
 
         {/* ─── Article Image ─── */}
         {article.imageUrl && (
-          <div className="mb-6">
-            <img
-              src={article.imageUrl}
-              alt={title}
-              className="w-full h-auto rounded-sm"
-            />
-          </div>
+          <ArticleImage
+            src={article.imageUrl}
+            alt={title}
+            containerClassName="mb-6"
+            className="w-full h-auto rounded-sm"
+          />
         )}
 
         {/* ─── Excerpt + Read Full Article ─── */}
