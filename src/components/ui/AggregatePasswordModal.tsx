@@ -34,32 +34,33 @@ export function AggregatePasswordModal({ onConfirm, onCancel }: Props) {
         <p className="font-sans text-xs text-gray-500 mb-4">
           Enter the password to run feed aggregation.
         </p>
+        {/* action + method give Safari the strongest signal that this is a real login form */}
         <form
+          action="/api/aggregate"
+          method="POST"
           onSubmit={(e) => {
             e.preventDefault();
             if (password) onConfirm(password);
           }}
         >
-          {/* Hidden username so iOS/macOS recognises this as a sign-in form and offers saved passwords / FaceID */}
           <input
             type="text"
+            id="aggregate-username"
             autoComplete="username"
             name="username"
-            value="aggregate"
-            readOnly
-            aria-hidden="true"
-            tabIndex={-1}
-            className="absolute w-0 h-0 overflow-hidden opacity-0"
+            defaultValue="aggregate"
+            placeholder="Username"
+            className="w-full border border-gray-300 px-3 py-2 text-sm font-sans mb-2 outline-none focus:border-gray-800 transition-colors"
           />
           <input
             ref={inputRef}
             type="password"
+            id="aggregate-password"
             name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
             autoComplete="current-password"
+            placeholder="Password"
             className="w-full border border-gray-300 px-3 py-2 text-sm font-sans mb-4 outline-none focus:border-gray-800 transition-colors"
+            onChange={(e) => setPassword(e.target.value)}
           />
           <div className="flex gap-2">
             <button
