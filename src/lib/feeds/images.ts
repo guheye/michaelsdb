@@ -86,6 +86,7 @@ async function fetchImagesWithLLM(
       return `${i + 1}. [${a.category || "News"}] "${title}"`;
     }).join("\n");
 
+    console.log(`[images] LLM pass: ${articles.length} articles need images`);
     const response = await client.messages.create(
       {
         model: AI_MODEL,
@@ -110,6 +111,7 @@ Return ONLY valid JSON, no explanation.`,
     if (!jsonMatch) return { updated: 0, errors: articles.length };
 
     const suggestions: { index: number; query: string }[] = JSON.parse(jsonMatch[0]);
+    console.log(`[images] LLM returned ${suggestions.length} suggestions:`, JSON.stringify(suggestions));
 
     // Query Unsplash for each suggestion, fall back to AI image generation
     for (let j = 0; j < suggestions.length; j++) {
@@ -120,10 +122,12 @@ Return ONLY valid JSON, no explanation.`,
 
       try {
         let imageUrl = await searchUnsplash(suggestion.query);
+        console.log(`[images] Unsplash for "${suggestion.query}":`, imageUrl ? "found" : "null");
 
         // Fallback: generate an AI image if Unsplash failed (rate limited or no results)
         if (!imageUrl) {
           imageUrl = await generateAIImage(suggestion.query);
+          console.log(`[images] Pollinations for "${suggestion.query}":`, imageUrl ? "found" : "null");
         }
 
         if (imageUrl) {
@@ -137,7 +141,8 @@ Return ONLY valid JSON, no explanation.`,
         errors++;
       }
     }
-  } catch {
+  } catch (err) {
+    console.error(`[images] LLM pass failed:`, err instanceof Error ? err.message : err);
     errors += articles.length;
   }
 
@@ -204,18 +209,19 @@ async function generateAIImage(query: string): Promise<string | null> {
       height: "500",
       nologo: "true",
       seed: String(Math.floor(Math.random() * 100000)),
+      model: "flux",
     });
     if (apiKey) params.set("key", apiKey);
 
     const url = `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?${params}`;
 
-    // Verify the URL actually returns an image (Pollinations generates on first request)
+    // Pollinations generates on first GET request; HEAD may not trigger generation
     const response = await fetch(url, {
-      method: "HEAD",
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(60000),
     });
 
-    if (response.ok) return url;
+    const contentType = response.headers.get("content-type") || "";
+    if (response.ok && contentType.startsWith("image/")) return url;
     return null;
   } catch {
     return null;
